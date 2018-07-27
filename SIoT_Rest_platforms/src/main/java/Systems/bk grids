@@ -1,0 +1,220 @@
+
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Systems;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import com.csvreader.CsvWriter;
+
+/**
+ *
+ * @author Salvo
+ */
+public class GRIDS_SYSTEMS {
+
+    int depth_of_search_max_setting;
+    int number_of_node;
+    double exp_coeff = 0;
+    int global_hop = 0;
+int count_gen =0;
+int flag =99;
+    public void setGlobal_hop(int global_hop) {
+        this.global_hop = global_hop;
+    }
+
+    public double getExp_coeff() {
+        return exp_coeff;
+    }
+
+    public void setExp_coeff(double exp_coeff) {
+        this.exp_coeff = exp_coeff;
+    }
+
+    public int getDepth_of_search_setting() {
+        return depth_of_search_max_setting;
+    }
+
+    public void setDepth_of_search_setting(int depth_of_search_max_setting) {
+        this.depth_of_search_max_setting = depth_of_search_max_setting;
+    }
+
+    public int getNumber_of_node() {
+        return number_of_node;
+    }
+
+    public void setNumber_of_node(int number_of_node) {
+        this.number_of_node = number_of_node;
+    }
+
+    Server server;
+    List<Server> servers = new ArrayList<>();
+
+    public GRIDS_SYSTEMS() {
+    }
+
+    public boolean RegisterServer(Server server) {
+        return this.servers.add(server);
+    }
+
+    public List<Server> getServerList() {
+        return this.servers;
+    }
+
+    public void addGRIDS_RS(HashMap<String, List<FriendTableEntry>> GRIDS_RS1, int server_number) {
+        //server  = new Server();
+        this.servers.get(server_number).setGRIDS_RS(GRIDS_RS1);
+
+    }
+
+    public int search_node(Client mynode, String id_to_find, int depth_of_search_count,int depth_of_search_max, long startTime, int hop, int num_entry_compared) {
+
+        Client node = mynode;
+        int i = 0;
+        int k = 0;
+        //selezione del server
+        for (i = 0; i <= this.servers.size() - 1; i++) {
+            if (node.getPort() == this.servers.get(i).getPort()) {
+                break;
+            }
+        }
+        System.out.println("Server selected:" + this.servers.get(i).getPort());
+        System.out.println("Id to find:" + id_to_find);
+        System.out.println("\n\n******************* SVE of "
+                + mynode.getUID() + "******************\n\n");
+
+        if (this.servers.get(i).getGRIDS_RS().containsKey(mynode.getUID())) { //check if the node is yet conected
+
+            for (k = 0; k <= this.servers.get(i).getGRIDS_RS().get(mynode.getUID()).size() - 1; k++) { //FT
+                //System.out.println(this.servers.get(i).getGRIDS_RS().get(mynode.getUID()).get(k).toString());  //it print each entry of the SVER compared
+
+                if (this.servers.get(i).getGRIDS_RS().get(mynode.getUID()).get(k).getFriend_SVE_UID().toString().equals(id_to_find)) {
+                    System.out.println("NMS ADDRESS FOUND :" + this.servers.get(i).getGRIDS_RS().get(mynode.getUID()).get(k).getGRIDS_MS_Locator().toString());
+                    long endTime = System.currentTimeMillis();
+                    System.out.println("DISCOVERY TIME: " + (endTime - startTime) + " ms");
+                    System.out.println("NUMBER OF HOP DONE: " + hop);
+                    //num_entry_compared = num_entry_compared*k;
+                    if(hop==0){
+                    hop = this.global_hop;}
+
+                    double distance = (Math.pow((mynode.getProfile() - this.servers.get(i).getGRIDS_RS().get(mynode.getUID()).get(k).getClient_instance().getProfile()), 2)) + (Math.pow((mynode.getLoc() - this.servers.get(i).getGRIDS_RS().get(mynode.getUID()).get(k).getClient_instance().getLoc()), 2));
+
+                    this.write_stat(hop, (endTime - startTime), num_entry_compared, distance, depth_of_search_count);
+                    return 1;
+
+                }
+            }
+        } else {
+            System.out.println("NMS ADDRESS NOT FOUND");
+            return 0;
+        }
+
+        if (k == (this.servers.get(i).getGRIDS_RS().get(mynode.getUID()).size())) { //if the size of k == size of the list, means that the node was not found
+            System.out.println("NMS ADDRESS NOT FOUND. PROCEED FRIEND BY FRIEND");
+         //   num_entry_compared = num_entry_compared * k;
+            
+         if(flag==99){
+         int x = this.recoursive_search(this.servers.get(i), mynode, id_to_find, depth_of_search_count,(depth_of_search_max), startTime, hop, num_entry_compared);
+         
+         
+         if (x == 1) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }else{return 0;}
+        
+        }
+
+        return 0;
+
+    }
+
+    private int recoursive_search(Server server, Client node, String id_to_find, int depth_of_search_count,int depth_of_search_max, long startTime, int hop, int num_entry_compared) {
+        int g = 0;
+       
+       depth_of_search_count= depth_of_search_count+1;
+       
+        if (depth_of_search_count <= depth_of_search_max-1) {
+            
+            
+            for (int j = 0; j <= server.getGRIDS_RS().get(node.getUID()).size() - 1; j++) {
+                flag=98;
+                System.out.println("CYCLES:" + j);
+                System.out.println("Depth level:" + depth_of_search_count);
+               // this.global_hop = global_hop+1;
+               hop=hop+1;
+                if(j <= server.getGRIDS_RS().get(node.getUID()).size() - 2){
+                 //System.out.println("TEST");
+                flag=99;
+                }
+                g = this.search_node(server.getGRIDS_RS().get(node.getUID()).get(j).getClient_instance(), id_to_find, (depth_of_search_count), (depth_of_search_max), startTime, hop, num_entry_compared);
+                if (g == 1) {
+                  
+                    return 1;
+                }else{
+                //NOP
+                
+                
+                }
+            }
+            
+
+        } else {
+            System.out.println("ADDRESS NOT FOUND: MAX HOP REACHED FOR THIS SVER");
+           
+            return 0;
+        }
+        return 0;
+    }
+
+    public void write_stat(int hop, long time, int num_entry_compared, double distance, int depth_of_search_count) {
+
+        CsvWriter csvOutput = null;
+        try {
+            String outputFile = "statistics.csv";
+            boolean alreadyExists = new File(outputFile).exists();
+            csvOutput = new CsvWriter(new FileWriter(outputFile, true), ',');
+
+            if (!alreadyExists) {
+                csvOutput.write("N_OF_NODES");
+                csvOutput.write("DEPTH_MAX");
+                csvOutput.write("DEPTH_REACHED");
+                csvOutput.write("HOP");
+                csvOutput.write("DISC_TIME (ms)");
+                csvOutput.write("EXP_COEFF");
+                csvOutput.write("DISTANCE");
+
+                csvOutput.endRecord();
+            }
+            csvOutput.write(Integer.toString(this.getNumber_of_node()));
+            csvOutput.write(Integer.toString(this.getDepth_of_search_setting()));
+            csvOutput.write(Integer.toString(depth_of_search_count));
+            csvOutput.write(Integer.toString(hop));
+            csvOutput.write(Long.toString(time));
+            csvOutput.write(Double.toString(this.getExp_coeff()));
+            csvOutput.write(Double.toString(distance));
+
+            csvOutput.endRecord();
+            csvOutput.close();
+        } catch (IOException ex) {
+            Logger.getLogger(GRIDS_SYSTEMS.class.getName()).log(Level.SEVERE, null, ex);
+            return;
+        } finally {
+            csvOutput.close();
+            return;
+        }
+
+    }
+
+}

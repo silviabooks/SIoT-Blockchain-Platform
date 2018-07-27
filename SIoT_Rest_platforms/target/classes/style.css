@@ -1,0 +1,84 @@
+graph 	{
+    fill-color: white,rgb(255,229,204);
+    fill-mode:gradient-radial;
+}
+node {
+    size: 40px, 40px;
+    fill-color: rgb(89,166,255),rgb(81,159,255);
+    fill-mode:gradient-diagonal1;
+    shadow-mode:gradient-radial;
+    shadow-color: gray,rgba(255,255,255,0);
+    text-background-mode:rounded-box;
+    text-style:italic;
+    text-alignment:under;
+    text-padding:10px;
+    text-offset:15px;
+    text-size:15;
+}
+
+
+node.simple {
+    size: 10px, 10px;
+    fill-color: rgb(178,34,34),rgb(170,30,30);
+    fill-mode:gradient-diagonal1;
+    shadow-mode:gradient-radial;
+    shadow-color: gray,rgba(255,255,255,0);
+    text-background-mode:rounded-box;
+    text-style:italic;
+    text-alignment:under;
+    text-padding:10px;
+    text-offset:15px;
+    text-size:15;
+}
+
+node.different {
+    size: 10px, 10px;
+    fill-color: rgb(89,166,255),rgb(81,159,255);
+    fill-mode:gradient-diagonal1;
+    shadow-mode:gradient-radial;
+    shadow-color: gray,rgba(255,255,255,0);
+    text-background-mode:rounded-box;
+    text-style:italic;
+    text-alignment:under;
+    text-padding:10px;
+    text-offset:15px;
+    text-size:15;
+}
+
+node:selected {
+    fill-color: rgb(102,234,255),rgb(63,142,255);
+    fill-mode:gradient-diagonal2;
+}
+
+node:clicked {
+    fill-color: white,red;
+    fill-mode:gradient-diagonal2;
+}
+
+
+  
+  
+edge.contrast{
+    fill-color: grey;
+    shadow-mode: gradient-radial;
+    shadow-color: red;
+    shadow-width: 1;
+    shadow-offset: 0;
+    arrow-shape: none;
+}
+edge.interact{
+    fill-color: grey;
+    shadow-mode: gradient-radial;
+    shadow-color: yellow;
+    shadow-width: 1;
+    shadow-offset: 0;
+    arrow-shape: none;
+}
+edge.simple{
+    fill-color: grey;
+    shadow-mode: gradient-radial;
+    shadow-color: green;
+    shadow-width: 1;
+    shadow-offset: 0;
+    arrow-shape: none;
+}

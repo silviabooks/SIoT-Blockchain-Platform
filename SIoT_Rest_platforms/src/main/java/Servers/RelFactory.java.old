@@ -1,0 +1,302 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Servers;
+
+import Entities.ClientInterface;
+import Servers.SVER.FriendTableEntry;
+import Servers.SVER.Sve;
+import Systems.CustomSimulation;
+import java.io.FileNotFoundException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.UnknownHostException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ *
+ * @author Salvo
+ */
+public class RelFactory {
+
+    private Sve SVE;
+    private static RMIInterface look_up;
+    Random rand = new Random(1);
+
+    public RelFactory() {
+
+    }
+    String[] type_of_rel = new String[]{"OOR", "SOR", "CLOR", "CWOR"};
+
+    public void CreateRealationship_logic(Map<Integer, Double> probabilities, List<ClientInterface> ListaClientProb) throws FileNotFoundException, UnknownHostException {
+
+        List<ClientInterface> smartphones = new LinkedList();
+        List<ClientInterface> sensors = new LinkedList();
+        List<ClientInterface> devices = new LinkedList();
+
+        for (ClientInterface i : ListaClientProb) {
+
+            if (i.getMETA().equals("SmartPhone")) {
+                smartphones.add(i);
+            } else if (i.getMETA().equals("Sensor")) {
+                sensors.add(i);
+            } else if (i.getMETA().equals("Device")) {
+                devices.add(i);
+            }
+
+        }
+
+        HashMap<ClientInterface, Sve> mapFriendTables = new HashMap<>();
+        //relatipnship of smartPhone 
+        for (ClientInterface h1 : smartphones) {
+
+            try {
+                this.SVE = new Sve();
+                List<FriendTableEntry> FriendTableBuffer = new LinkedList<>();
+
+                for (ClientInterface h2 : smartphones) {
+                    if (!h1.equals(h2)) {
+
+                        int n_areas = 0;
+                        for (int h = 0; h < h1.getAreas().length; h++) {
+                            if (h1.getAreas()[h] == h2.getAreas()[h]) {
+                                n_areas = n_areas + 1;
+                            } else {
+                                break;
+                            }
+                        }
+                        getProb(FriendTableBuffer, probabilities.get(n_areas), h2, h2.getAreas()[0]);
+
+                    }
+                }
+
+                for (ClientInterface h2 : devices) {
+                    int n_areas = 0;
+                    for (int h = 0; h < h1.getAreas().length; h++) {
+                        if (h1.getAreas()[h] == h2.getAreas()[h]) {
+                            n_areas = n_areas + 1;
+                        } else {
+                            break;
+                        }
+                    }
+                    getProb(FriendTableBuffer, probabilities.get(n_areas), h2, h2.getAreas()[0]);
+                }
+
+                for (ClientInterface h2 : sensors) {
+                    int n_areas = 0;
+                    for (int h = 0; h < h1.getAreas().length; h++) {
+                        if (h1.getAreas()[h] == h2.getAreas()[h]) {
+                            n_areas = n_areas + 1;
+                        } else {
+                            break;
+                        }
+                    }
+                    getProb(FriendTableBuffer, probabilities.get(n_areas), h2, h2.getAreas()[0]);
+                }
+
+                this.SVE.setSVER(FriendTableBuffer);
+                // GRIDS_SYSTEMS.getServerList().get(h1.getAreas()[0]).getGRIDS_RS().put(h1, SVE);
+                look_up = (RMIInterface) Naming.lookup("//localhost/server" + h1.getAreas()[0]);
+                //    look_up.getGRIDS_RS().put(h1, SVE);
+                look_up.updateGRIDS_RS(h1, SVE);
+
+            } catch (NotBoundException ex) {
+                Logger.getLogger(CustomSimulation.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (MalformedURLException ex) {
+                Logger.getLogger(CustomSimulation.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (RemoteException ex) {
+                Logger.getLogger(CustomSimulation.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
+
+        //relatipnship of sensor
+        for (ClientInterface h1 : sensors) {
+
+            try {
+                this.SVE = new Sve();
+                List<FriendTableEntry> FriendTableBuffer = new LinkedList<>();
+
+                for (ClientInterface hs : smartphones) {
+                    int n_areas = 0;
+                    for (int h = 0; h < h1.getAreas().length; h++) {
+                        if (h1.getAreas()[h] == hs.getAreas()[h]) {
+                            n_areas = n_areas + 1;
+                        } else {
+                            break;
+                        }
+                    }
+                    getProb(FriendTableBuffer, probabilities.get(n_areas), hs, hs.getAreas()[0]);
+                }
+
+                for (ClientInterface h2 : sensors) {
+                    if (!h1.equals(h2)) {
+                        int n_areas = 0;
+                        for (int h = 0; h < h1.getAreas().length; h++) {
+                            if (h1.getAreas()[h] == h2.getAreas()[h]) {
+                                n_areas = n_areas + 1;
+                            } else {
+                                break;
+                            }
+                        }
+                        getProb(FriendTableBuffer, probabilities.get(n_areas), h2, h2.getAreas()[0]);
+                    }
+                }
+
+                //sensors with devices
+                for (ClientInterface h2 : devices) {
+                    int n_areas = 0;
+                    for (int h = 0; h < h1.getAreas().length; h++) {
+                        if (h1.getAreas()[h] == h2.getAreas()[h]) {
+                            n_areas = n_areas + 1;
+                        } else {
+                            break;
+                        }
+                    }
+                    getProb(FriendTableBuffer, probabilities.get(n_areas), h2, h2.getAreas()[0]);
+                }
+
+                //System.out.println("SERVER->"+GRIDS_SYSTEMS.getServerList().get(h1.getAreas()[0]).area);
+                this.SVE.setSVER(FriendTableBuffer);
+                look_up = (RMIInterface) Naming.lookup("//localhost/server" + h1.getAreas()[0]);
+                // look_up.getGRIDS_RS().put(h1, SVE);
+                look_up.updateGRIDS_RS(h1, SVE);
+                // GRIDS_SYSTEMS.getServerList().get(h1.getAreas()[0]).getGRIDS_RS().put(h1, SVE);
+            } catch (NotBoundException ex) {
+                Logger.getLogger(CustomSimulation.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (MalformedURLException ex) {
+                Logger.getLogger(CustomSimulation.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (RemoteException ex) {
+                Logger.getLogger(CustomSimulation.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+        //relatipnship of devices
+        for (ClientInterface h1 : devices) {
+
+            try {
+                this.SVE = new Sve();
+                List<FriendTableEntry> FriendTableBuffer = new LinkedList<>();
+
+                for (ClientInterface hs : smartphones) {
+                    int n_areas = 0;
+                    for (int h = 0; h < h1.getAreas().length; h++) {
+                        if (h1.getAreas()[h] == hs.getAreas()[h]) {
+                            n_areas = n_areas + 1;
+                        } else {
+                            break;
+                        }
+                    }
+                    getProb(FriendTableBuffer, probabilities.get(n_areas), hs, hs.getAreas()[0]);
+                }
+                //sensors with devices
+                for (ClientInterface h2 : devices) {
+                    if (!h1.equals(h2)) {
+                        int n_areas = 0;
+                        for (int h = 0; h < h1.getAreas().length; h++) {
+                            if (h1.getAreas()[h] == h2.getAreas()[h]) {
+                                n_areas = n_areas + 1;
+                            } else {
+                                break;
+                            }
+                        }
+                        getProb(FriendTableBuffer, probabilities.get(n_areas), h2, h2.getAreas()[0]);
+                    }
+                }
+
+                for (ClientInterface h2 : sensors) {
+                    int n_areas = 0;
+                    for (int h = 0; h < h1.getAreas().length; h++) {
+                        if (h1.getAreas()[h] == h2.getAreas()[h]) {
+                            n_areas = n_areas + 1;
+                        } else {
+                            break;
+                        }
+                    }
+                    getProb(FriendTableBuffer, probabilities.get(n_areas), h2, h2.getAreas()[0]);
+                }
+                Collections.sort(FriendTableBuffer);
+
+                this.SVE.setSVER(FriendTableBuffer);
+                //GRIDS_SYSTEMS.getServerList().get(h1.getAreas()[0]).getGRIDS_RS().put(h1, SVE);
+                // System.out.println(GRIDS_SYSTEMS.getServerList().get(h1.getAreas()[0]).getGRIDS_RS().get(h1).getSVER());
+
+                //  this.GRIDS_SYSTEMS.getServerList().get(h1.getAreas()[0]).getGRIDS_RS().put(h1, SVE);
+                look_up = (RMIInterface) Naming.lookup("//localhost/server" + h1.getAreas()[0]);
+                //look_up.getGRIDS_RS().put(h1, SVE);
+                look_up.updateGRIDS_RS(h1, SVE);
+            } catch (NotBoundException ex) {
+                Logger.getLogger(CustomSimulation.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (MalformedURLException ex) {
+                Logger.getLogger(CustomSimulation.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (RemoteException ex) {
+                Logger.getLogger(CustomSimulation.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+    }
+
+    private void getProb(List<FriendTableEntry> FriendTableBuffer,
+            double p,
+            ClientInterface c,
+            int u) throws UnknownHostException {
+
+        FriendTableEntry tableEntry = null;
+        if (p == 1) {
+            try {
+                look_up = (RMIInterface) Naming.lookup("//localhost/server" + u);
+                tableEntry = new FriendTableEntry(this.type_of_rel[rand.nextInt(3)],
+                        new InetSocketAddress(InetAddress.getLocalHost(), look_up.getPort_()).toString(),
+                        InetAddress.getLocalHost(),
+                        // GRIDS_SYSTEMS.getServerList().get(u).getServerSocket().getInetAddress(),
+                        c);
+                FriendTableBuffer.add(tableEntry);
+
+            } catch (NotBoundException ex) {
+                Logger.getLogger(CustomSimulation.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (MalformedURLException ex) {
+                Logger.getLogger(CustomSimulation.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (RemoteException ex) {
+                Logger.getLogger(CustomSimulation.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        } else {
+
+            Float tmp = rand.nextFloat();
+
+            if (tmp <= p) {
+                try {
+                    look_up = (RMIInterface) Naming.lookup("//localhost/server" + u);
+                    tableEntry = new FriendTableEntry(this.type_of_rel[rand.nextInt(3)],
+                            new InetSocketAddress(InetAddress.getLocalHost(), look_up.getPort_()).toString(),
+                            InetAddress.getLocalHost(),
+                            //  GRIDS_SYSTEMS.getServerList().get(u).getServerSocket().getInetAddress(),
+                            c);
+                    FriendTableBuffer.add(tableEntry);
+                    System.out.println("area1" + c.getAreas()[0] + " area2->" + tableEntry.getClient_instance().getAreas()[0]);
+
+                } catch (NotBoundException ex) {
+                    Logger.getLogger(CustomSimulation.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (MalformedURLException ex) {
+                    Logger.getLogger(CustomSimulation.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (RemoteException ex) {
+                    Logger.getLogger(CustomSimulation.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+
+}

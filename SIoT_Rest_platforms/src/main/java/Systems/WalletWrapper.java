@@ -20,7 +20,7 @@ import org.bitcoinj.wallet.Wallet;
  */
 public class WalletWrapper {
 
-    private SIoTBitcoinClient tc;
+    private static SIoTBitcoinClient tc;
     public static HashSet<String> unconfirmedTrxs;
 
     public WalletWrapper() {
@@ -33,8 +33,8 @@ public class WalletWrapper {
         return tc;
     }
 
-    public void setTc(SIoTBitcoinClient tc) {
-        this.tc = tc;
+    public void setTc(SIoTBitcoinClient tc1) {
+        tc = tc1;
     }
 
     public void createWallet() {
@@ -50,26 +50,21 @@ public class WalletWrapper {
                 new TransactionConfidenceEventListener() {
             @Override
             public void onTransactionConfidenceChanged(Wallet wallet, Transaction tx) {
-
-                if (!tx.getValueSentToMe(wallet).isZero()) {
-                    
-                    // se il valore che ricevo è 0, vuol dire che ho speso soldi
-                    // quindi non devo fare il pippotto, quindi con la negazione 
-                    // lo devo fare
-                    
+                boolean valoreFantomatico = tx.getValueSentFromMe(wallet)
+                        .compareTo(tx.getValueSentToMe(wallet)) < 0;
+                // se è > 0, allora li ho sborsati
+                // se è < 0, allora li ho ricevuti
+                if (tx.getValueSentFromMe(wallet).isZero() || valoreFantomatico) {
                     TransactionConfidence confidence = tx.getConfidence();
                     // Confirmation control
                     int depth = confidence.getDepthInBlocks();
                     String trxString = tx.getHashAsString();
-                    
 
                     if (depth == 0) { // La trx non è ancora nella Blockchain
                         // Verifico se l'hash è presente
                         if (unconfirmedTrxs.add(trxString)) {
                             // se non c'era, l'aggiungo sia nel set che nel DB
                             System.out.println("Unconfirmed trx: " + trxString);
-                            System.out.println("getValueSentFromMe: " + tx.getValueSentFromMe(wallet).toPlainString());
-                            System.out.println("getValueSentToMe: " + tx.getValueSentToMe(wallet).toPlainString());
                             TrxManager trxm = new TrxManager();
                             trxm.addUnconfirmedTrx(trxString, "", "");
                             trxm.closeConnection();
@@ -80,7 +75,7 @@ public class WalletWrapper {
                         // se c'è, la levo sia dal set che dal DB
                         if (unconfirmedTrxs.contains(trxString)) {
                             System.out.println("*** Transaction " + trxString
-                                    + " confirmed!");
+                                    + " confirmed! *****************");
                             TrxManager trxm = new TrxManager();
                             trxm.confirmTrxAndReadData(trxString);
                             trxm.closeConnection();

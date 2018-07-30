@@ -6,7 +6,7 @@
 package com.unict.iot.blockchain;
 
 import Settings.Setup;
-import Systems.RMIRootInterface;
+import static Systems.GridsSystems.ww;
 import com.google.gson.Gson;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import java.io.BufferedReader;
@@ -16,9 +16,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
-import java.rmi.Naming;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -44,7 +41,6 @@ import thingspeak.ThingSpeakException;
 public class TrxManager {
 
     private static Connection connection;
-    private static RMIRootInterface root_look_up;
 
     public TrxManager() {
         try {
@@ -119,35 +115,30 @@ public class TrxManager {
                     }
                     JSONObject myResponse = new JSONObject(response.toString());
 
-                    String price = myResponse.getString("price");
                     String walletAddress = myResponse.getString("walletAddress");
-
-                    /**
-                     * NON FUNZIONAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-                     * 
-                     */
-                    root_look_up = (RMIRootInterface) Naming.lookup("//"
-                            + Setup.IP_SERVER + "/server" + Setup.ID_SERVER);
-                    
-                    String txResult = root_look_up.makeTransaction(walletAddress, price);
+                    String price = myResponse.getString("price");
+                    //TODO: vedere se funonzia
+                    System.out.println(" *** SENDING COMMISSION for " + trxHash);
+                    String txResult = ww.getTc().makeTransaction(walletAddress, price);
+                    // MINCHIA SI BLOCCA
                     System.out.println(txResult);
-
                     //TODO: restituire la readAPIkey! E fare il DB con le chiavi
                     
                     // Get the channel ID
-                    String chanID = myResponse.getString("meta")
-                            .replace("https://thingspeak.com/channels/", "");
-                    // Read from ThingSpeak (10 results by default)
-                    Channel channel = new Channel(Integer.parseInt(chanID));
-                    FeedParameters par = new FeedParameters();
-                    par.results(10);
-                    Feed feed = channel.getChannelFeed(par);
-                    ArrayList<Entry> lista = feed.getEntryList();
-                    //TODO: correggere gli errori nel JSON
-                    Gson gson = new Gson();
-                    content = gson.toJson(lista);
-                } catch (ProtocolException | UnirestException | ThingSpeakException
-                        | NotBoundException | MalformedURLException | RemoteException ex) {
+//                    String chanID = myResponse.getString("meta")
+//                            .replace("https://thingspeak.com/channels/", "");
+//                    // Read from ThingSpeak (10 results by default)
+//                    // Questo non servirà più visto che restituisco la readKey...
+//                    Channel channel = new Channel(Integer.parseInt(chanID));
+//                    FeedParameters par = new FeedParameters();
+//                    par.results(10);
+//                    Feed feed = channel.getChannelFeed(par);
+//                    ArrayList<Entry> lista = feed.getEntryList();
+//                    Gson gson = new Gson();
+//                    content = gson.toJson(lista);
+
+                    content = "Ciao mbare";
+                } catch (ProtocolException | MalformedURLException ex) {
                     Logger.getLogger(TrxManager.class.getName()).log(Level.SEVERE, null, ex);
                 }
             } else {
@@ -171,12 +162,8 @@ public class TrxManager {
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM `unconfirmed` "
                     + "WHERE `TrxHash`='" + trxHash + "'");
-            if (rs.next()) {
-                //System.out.println("I have: " + rs.getString("TrxHash"));
-                return true;
-            } else {
-                return false;
-            }
+            // *** attenzionare questo return ***
+            return rs.next();
         } catch (SQLException ex) {
             Logger.getLogger(TrxManager.class.getName()).log(Level.SEVERE, null, ex);
         }

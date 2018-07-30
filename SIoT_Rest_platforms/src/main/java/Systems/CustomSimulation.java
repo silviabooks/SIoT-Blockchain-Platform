@@ -83,7 +83,6 @@ public class CustomSimulation {
         /**
          * *** RMI on second port for finalClient ***
          */
-        
         this.c = new FinalClient();
         System.out.println("RMI for final client...");
         try {

@@ -51,8 +51,6 @@ public class SIoTBitcoinClient {
             public void onCoinsReceived(Wallet wallet, Transaction t, 
                     Coin prevBalance, Coin newBalance) {
                 System.out.println(" *** I received coins: " + t.getHashAsString());
-                // System.out.println("Previous Balance: " + prevBalance.toFriendlyString());
-                // System.out.println("New Balance: " + newBalance.toFriendlyString());
             }
         });
         

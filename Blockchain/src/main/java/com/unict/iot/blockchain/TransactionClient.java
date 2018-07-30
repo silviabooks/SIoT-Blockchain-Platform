@@ -46,6 +46,7 @@ public class TransactionClient implements TransactionIf {
 
         // **************** BE CAUTIOUS WITH THIS
         //this.kit.wallet().allowSpendingUnconfirmedTransactions();
+        
         // Adding listeners for receiving and sending coins
         this.kit.wallet().addCoinsReceivedEventListener(new WalletCoinsReceivedEventListener() {
             @Override

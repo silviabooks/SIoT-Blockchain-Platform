@@ -16,7 +16,7 @@ import java.util.HashMap;
  */
 public class GridsSystems extends UnicastRemoteObject implements RMIRootInterface {
 
-    WalletWrapper ww;
+    public static WalletWrapper ww;
 
     HashMap<String, String> servers_address;
 
@@ -36,13 +36,12 @@ public class GridsSystems extends UnicastRemoteObject implements RMIRootInterfac
 
     @Override
     public HashMap<String, String> getAddressServerList() {
-        //System.out.println(this.servers_address.toString());
         return this.servers_address;
     }
 
     @Override
     public boolean CreateWallet() {
-        this.ww = new WalletWrapper();
+        ww = new WalletWrapper();
         try {
             ww.createWallet();
             return true;
@@ -53,7 +52,7 @@ public class GridsSystems extends UnicastRemoteObject implements RMIRootInterfac
 
     @Override
     public SIoTBitcoinClient getTransactionClient() {
-        return this.ww.getTc();
+        return ww.getTc();
     }
 
     @Override

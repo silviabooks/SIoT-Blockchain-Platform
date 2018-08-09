@@ -86,7 +86,7 @@ public class SIoTBitcoinClient {
     
     public String makeTransaction(String destAddress, String amount) {
         String txString = null;
-        System.out.println("Sending " + amount + " satoshis to " + destAddress);
+        System.out.println("*** Sending " + amount + " satoshis to " + destAddress);
         Address address = Address.fromBase58(this.params, destAddress);
         try {
             SendRequest sendRequest = SendRequest.to(address, 

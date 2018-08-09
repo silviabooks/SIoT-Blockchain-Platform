@@ -9,7 +9,6 @@ Servers/GridsRS.class
 Systems/Configurator.class
 Servers/Server.class
 Statistics/StatisticsInterface.class
-com/unict/iot/blockchain/ProvaMain.class
 Servers/SVER/Sve.class
 Systems/EngineSimulator$6.class
 Systems/WalletWrapper.class

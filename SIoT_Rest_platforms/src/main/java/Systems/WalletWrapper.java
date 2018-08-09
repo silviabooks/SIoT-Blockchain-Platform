@@ -75,7 +75,7 @@ public class WalletWrapper {
                         // se c'è, la levo sia dal set che dal DB
                         if (unconfirmedTrxs.contains(trxString)) {
                             System.out.println("*** Transaction " + trxString
-                                    + " confirmed! *****************");
+                                    + " confirmed! *********");
                             TrxManager trxm = new TrxManager();
                             trxm.confirmTrxAndReadData(trxString);
                             trxm.closeConnection();

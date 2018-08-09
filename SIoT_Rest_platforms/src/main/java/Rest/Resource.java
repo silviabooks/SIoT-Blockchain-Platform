@@ -177,9 +177,9 @@ public class Resource {
         String reqOutput = null;
 
         root_look_up = (RMIRootInterface) Naming.lookup("//" + Setup.GATEWAY + "/root");
-
+        
         String txResult = root_look_up.makeTransaction(destAddress, amount);
-
+        
         System.out.println(txResult);
 
         if (txResult.contains("COINS SENT")) {

@@ -115,13 +115,18 @@ public class TrxManager {
                     }
                     JSONObject myResponse = new JSONObject(response.toString());
 
-                    String walletAddress = myResponse.getString("walletAddress");
-                    String price = myResponse.getString("price");
-                    //TODO: vedere se funonzia
+                    final String walletAddress = myResponse.getString("walletAddress");
+                    final String price = myResponse.getString("price");
                     System.out.println(" *** SENDING COMMISSION for " + trxHash);
-                    String txResult = ww.getTc().makeTransaction(walletAddress, price);
-                    // MINCHIA SI BLOCCA
-                    System.out.println(txResult);
+                    Thread thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            String txResult = ww.getTc().makeTransaction(walletAddress, price);
+                            //System.out.println(txResult);
+                        }
+                    });
+                    thread.start();
+                    
                     //TODO: restituire la readAPIkey! E fare il DB con le chiavi
                     
                     // Get the channel ID
@@ -162,7 +167,6 @@ public class TrxManager {
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM `unconfirmed` "
                     + "WHERE `TrxHash`='" + trxHash + "'");
-            // *** attenzionare questo return ***
             return rs.next();
         } catch (SQLException ex) {
             Logger.getLogger(TrxManager.class.getName()).log(Level.SEVERE, null, ex);

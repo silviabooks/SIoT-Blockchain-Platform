@@ -75,7 +75,6 @@ public class CustomSimulation {
          */
         if (root_look_up.CreateWallet()) {
             System.out.println("Wallet Created!");
-            //TODO: far stampare il balance
             System.out.println(root_look_up.getWalletBalance());
         } else {
             System.out.println("Wallet NOT Created!");

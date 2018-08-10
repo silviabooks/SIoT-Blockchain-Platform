@@ -84,7 +84,6 @@ public class BitcoinClient {
         return this.params;
     }
 
-    // TODO: modificare e aggiungere altre robe
     public String makeTransaction(String destAddress, String amount) {
         String txString = null;
         System.out.println("Sending " + amount + " satoshis to " + destAddress);

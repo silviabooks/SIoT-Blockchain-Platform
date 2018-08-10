@@ -7,6 +7,14 @@ package GUI;
 
 import FinalClient.FinalClientRMIRootInterface;
 import blockchain.WalletWrapper;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
+import org.json.JSONObject;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -22,6 +30,7 @@ public class ClientGUI extends javax.swing.JFrame {
 
     private final WalletWrapper ww;
     private FinalClientRMIRootInterface lookUp;
+    private static String currentPrice;
 
     /**
      * Creates new form ClientGUI
@@ -29,6 +38,7 @@ public class ClientGUI extends javax.swing.JFrame {
     public ClientGUI() {
         this.ww = new WalletWrapper();
         initComponents();
+        currentPrice = null;
     }
 
     /**
@@ -52,6 +62,9 @@ public class ClientGUI extends javax.swing.JFrame {
         sveLabel = new javax.swing.JLabel();
         sverTextField = new javax.swing.JTextField();
         sveTextField = new javax.swing.JTextField();
+        searchButton = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        priceLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -106,6 +119,16 @@ public class ClientGUI extends javax.swing.JFrame {
         sveTextField.setText("1");
         sveTextField.setEnabled(false);
 
+        searchButton.setText("Search");
+        searchButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchButtonActionPerformed(evt);
+            }
+        });
+
+        priceLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        priceLabel.setText(" ");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -114,21 +137,29 @@ public class ClientGUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1)
-                    .addComponent(titleLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 520, Short.MAX_VALUE)
+                    .addComponent(titleLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(startButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(balanceLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(addressTextField)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(sendBitcoinButton))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(sveLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(sverLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(sveLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
+                                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(priceLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(sverLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(sverTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 337, Short.MAX_VALUE)
-                            .addComponent(sveTextField))))
+                            .addComponent(searchButton, javax.swing.GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
+                            .addComponent(sverTextField, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(sveTextField, javax.swing.GroupLayout.Alignment.TRAILING))))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -148,12 +179,18 @@ public class ClientGUI extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(sveLabel)
                     .addComponent(sveTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(addressTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(sendBitcoinButton, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(searchButton)
+                    .addComponent(jLabel1)
+                    .addComponent(priceLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(sendBitcoinButton)
+                    .addComponent(addressTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -165,12 +202,75 @@ public class ClientGUI extends javax.swing.JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchButtonActionPerformed
+        try {
+            // come effettuo la ricerca? Con una REST! /Transaction/searchPrice/{sverId}/{sveId}
+            String url = "http://localhost:8080/Sim/SIoT/Server/"
+                    + sverTextField.getText() + "/"
+                    + sveTextField.getText();
+            URL obj = new URL(url);
+            HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
+            conn.setRequestMethod("GET");
+            StringBuilder response;
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            String inputLine;
+            response = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            JSONObject myResponse = new JSONObject(response.toString());
+            priceLabel.setText("PRICE: " + myResponse.getString("price") + " satoshis");
+            currentPrice = myResponse.getString("price");
+
+        } catch (MalformedURLException ex) {
+            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ProtocolException ex) {
+            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_searchButtonActionPerformed
+
+    private void sverTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sverTextFieldActionPerformed
+        // add your handling code here:
+    }//GEN-LAST:event_sverTextFieldActionPerformed
+
+    private void sendBitcoinButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendBitcoinButtonActionPerformed
+        if (currentPrice != null) {
+            String trx = ww.sendBitcoin(currentPrice, addressTextField.getText());
+            String sverId = sverTextField.getText();
+            String sveId = sveTextField.getText();
+            // TODO corregge la concorrenza in questa parte (aspettare la sendBitcoin)
+            //***
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            //***
+            try {
+                String result = lookUp.requestDataWithTrx(trx, sverId, sveId);
+                System.out.println(result);
+                resultTextArea.setLineWrap(true);
+                resultTextArea.setEnabled(true);
+                resultTextArea.append(result + "\n");
+            } catch (RemoteException ex) {
+                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            balanceLabel.setText("My balance is: "
+                    + ww.getTc().getWallet().getBalance().toFriendlyString());
+        } else {
+            priceLabel.setText("Cacca");
+        }
+
+    }//GEN-LAST:event_sendBitcoinButtonActionPerformed
 
     private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startButtonActionPerformed
         ww.createWallet();
@@ -186,40 +286,11 @@ public class ClientGUI extends javax.swing.JFrame {
             sverLabel.setEnabled(true);
             sveTextField.setEnabled(true);
             sverTextField.setEnabled(true);
+            searchButton.setEnabled(true);
         } catch (RemoteException | NotBoundException ex) {
             Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_startButtonActionPerformed
-
-    private void sendBitcoinButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendBitcoinButtonActionPerformed
-        //TODO: inserire un meccanismo per ottenere il prezzo in automatico 
-        //      a partire dagli IDs... usare la REST getSingleSVE per prendere
-        //      il prezzo e aggiungere la commissione
-        String trx = ww.sendBitcoin("1000", addressTextField.getText());
-        String sverId = sverTextField.getText();
-        String sveId = sveTextField.getText();
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        try {
-            String result = lookUp.requestDataWithTrx(trx, sverId, sveId);
-            System.out.println(result);
-            resultTextArea.setLineWrap(true);
-            resultTextArea.setEnabled(true);
-            resultTextArea.append(result + "\n");
-        } catch (RemoteException ex) {
-            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        balanceLabel.setText("My balance is: "
-                + ww.getTc().getWallet().getBalance().toFriendlyString());
-
-    }//GEN-LAST:event_sendBitcoinButtonActionPerformed
-
-    private void sverTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sverTextFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_sverTextFieldActionPerformed
 
     /**
      * @param args the command line arguments
@@ -260,9 +331,12 @@ public class ClientGUI extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField addressTextField;
     private javax.swing.JLabel balanceLabel;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel priceLabel;
     private javax.swing.JTextArea resultTextArea;
+    private javax.swing.JButton searchButton;
     private javax.swing.JButton sendBitcoinButton;
     private javax.swing.JButton startButton;
     private javax.swing.JLabel sveLabel;

@@ -58,14 +58,12 @@ public class GridsSystems extends UnicastRemoteObject implements RMIRootInterfac
     @Override
     public String makeTransaction(String destAddress, String amount) {
         return this.getTransactionClient().makeTransaction(destAddress, amount);
-        
+
     }
 
     @Override
     public String getWalletBalance() {
         return this.getTransactionClient().getWallet().getBalance().toFriendlyString();
     }
-    
-    // Aggiungere metodi qui..
-    
+
 }

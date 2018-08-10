@@ -32,7 +32,7 @@ public class TransactionResource {
 
     @GET
     @Path("{trxHash}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
     public String visualizeData(@PathParam("trxHash") String trxHash) {
         // cercare la trx nel DB e ritornare i dati se presenti
         trxManager = new TrxManager();

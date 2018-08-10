@@ -55,7 +55,6 @@ public class TrxManager {
 
     public void updateUnconfirmedTrx(String trxHash, String SVER_ID, String SVE_ID) {
         try {
-            //System.out.println("updateunconfirmedtrx");
             PreparedStatement pst = connection.prepareStatement("UPDATE "
                     + "`unconfirmed` SET `SVER_ID`='" + SVER_ID
                     + "',`SVE_ID`='" + SVE_ID + "' WHERE `TrxHash`='"
@@ -92,7 +91,7 @@ public class TrxManager {
         }
     }
 
-    public void confirmTrxAndReadData(String trxHash) {
+    public void confirmTrxAndReadData(final String trxHash) {
         try {
             String content = null;
             Statement stmt = connection.createStatement();
@@ -115,44 +114,40 @@ public class TrxManager {
                         response.append(inputLine);
                     }
                     JSONObject myResponse = new JSONObject(response.toString());
-
                     final String walletAddress = myResponse.getString("walletAddress");
                     final String price = myResponse.getString("price");
-                    System.out.println(" *** SENDING COMMISSION for " + trxHash);
                     // Create a thread - I'm sending bitcoins to the channel owner
                     // It's "fire and forget", I don't need the hash of this trx or whatever
                     Thread thread = new Thread(new Runnable() {
                         @Override
                         public void run() {
+                            System.out.println(" *** SENDING COMMISSION for " + trxHash);
                             ww.getTc().makeTransaction(walletAddress, price);
                         }
                     });
                     thread.start();
-                    
-                    //TODO: restituire la readAPIkey! E fare il DB con le chiavi
-//                    Statement keyStmt = connection.createStatement();
-//                    ResultSet res = keyStmt.executeQuery("SELECT readAPIkey FROM `readAPIkeys` "
-//                            + "WHERE SVER_ID='" + sverId + "' AND SVE_ID='" + sveId + "'");
-//                    if (res.next()) 
-//                        content = res.getString("readAPIkey");
-//                    else {
-//                        content = "ReadAPIKey not found. The channel is public!";
-                    content = "ReadAPIKey finta";
-                        // Get the channel ID
-    //                    String chanID = myResponse.getString("meta")
-    //                            .replace("https://thingspeak.com/channels/", "");
-    //                    // Read from ThingSpeak (10 results by default)
-    //                    // Questo non servirà più visto che restituisco la readKey...
-    //                    Channel channel = new Channel(Integer.parseInt(chanID));
-    //                    FeedParameters par = new FeedParameters();
-    //                    par.results(10);
-    //                    Feed feed = channel.getChannelFeed(par);
-    //                    ArrayList<Entry> lista = feed.getEntryList();
-    //                    Gson gson = new Gson();
-    //                    content = gson.toJson(lista);
+                    Statement keyStmt = connection.createStatement();
+                    ResultSet res = keyStmt.executeQuery("SELECT readAPIkey FROM `readAPIkeys` "
+                            + "WHERE SVER_ID='" + sverId + "' AND SVE_ID='" + sveId + "'");
+                    if (res.next()) {
+                        content = res.getString("readAPIkey");
+                    } else {
+                        content = "ReadAPIKey not found. The channel could be public";
+                    }
+                    // Get the channel ID
+                    //                    String chanID = myResponse.getString("meta")
+                    //                            .replace("https://thingspeak.com/channels/", "");
+                    //                    // Read from ThingSpeak (10 results by default)
+                    //                    // Questo non servirà più visto che restituisco la readKey...
+                    //                    Channel channel = new Channel(Integer.parseInt(chanID));
+                    //                    FeedParameters par = new FeedParameters();
+                    //                    par.results(10);
+                    //                    Feed feed = channel.getChannelFeed(par);
+                    //                    ArrayList<Entry> lista = feed.getEntryList();
+                    //                    Gson gson = new Gson();
+                    //                    content = gson.toJson(lista);
                     System.out.println(content);
-                    //}
-                    
+
                 } catch (ProtocolException | MalformedURLException ex) {
                     Logger.getLogger(TrxManager.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -162,11 +157,7 @@ public class TrxManager {
             PreparedStatement pst = connection.prepareStatement(
                     "DELETE FROM `unconfirmed` WHERE `TrxHash`='" + trxHash + "'");
             pst.execute();
-            //TODO sostituire con la funzione addCompletedTrx(trxHash, content)
-            PreparedStatement pst2 = connection.prepareStatement(
-                    "INSERT INTO `completed` (TrxHash, Content) "
-                    + "VALUES ('" + trxHash + "', '" + content + "')");
-            pst2.execute();
+            addCompletedTrx(trxHash, content);
 
         } catch (SQLException | IOException ex) {
             Logger.getLogger(TrxManager.class.getName()).log(Level.SEVERE, null, ex);
@@ -204,7 +195,7 @@ public class TrxManager {
                     + "WHERE `TrxHash`='" + trxHash + "'");
             if (rs.next()) {
                 result = rs.getString("Content");
-                
+
             } else {
                 result = "error";
             }

@@ -19,7 +19,6 @@ public class Client implements ClientInterface, Serializable {
     private String ip;
     private String meta;
     private int server;
-    // TODO: aggiungere price e walletAddress
     private String price;
     private String walletAddress;
 
@@ -74,7 +73,7 @@ public class Client implements ClientInterface, Serializable {
     public String toString() {
 
         return "Client{" + "UID=" + UID + ", areas=" + areas + ", ip=" + ip
-                + ", meta=" + meta + ", server=" + server + ", price=" + price 
+                + ", meta=" + meta + ", server=" + server + ", price=" + price
                 + ", walletAddress=" + walletAddress + "}";
     }
 

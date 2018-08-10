@@ -64,7 +64,7 @@ public class WalletWrapper {
                         // Verifico se l'hash è presente
                         if (unconfirmedTrxs.add(trxString)) {
                             // se non c'era, l'aggiungo sia nel set che nel DB
-                            System.out.println("Unconfirmed trx: " + trxString);
+                            //System.out.println("Unconfirmed trx: " + trxString);
                             TrxManager trxm = new TrxManager();
                             trxm.addUnconfirmedTrx(trxString, "", "");
                             trxm.closeConnection();

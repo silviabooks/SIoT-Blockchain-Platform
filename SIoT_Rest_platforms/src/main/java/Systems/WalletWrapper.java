@@ -50,6 +50,10 @@ public class WalletWrapper {
                 new TransactionConfidenceEventListener() {
             @Override
             public void onTransactionConfidenceChanged(Wallet wallet, Transaction tx) {
+                
+                
+                //TODO ANDARE A VEDERE L'ADDRESS!!!!!!
+                
                 boolean valoreFantomatico = tx.getValueSentFromMe(wallet)
                         .compareTo(tx.getValueSentToMe(wallet)) < 0;
                 // se è > 0, allora li ho sborsati

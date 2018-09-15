@@ -50,4 +50,10 @@ public class FinalClient implements FinalClientRMIRootInterface {
                 + "http://localhost:8080/Sim/SIoT/Transaction/" + trxHash;
 
     }
+    
+    @Override
+    public void rechargeCredit(String ciao) {
+        // vado a riempire il credito nella tabella!
+    }
+    
 }

@@ -42,7 +42,7 @@ public class WalletWrapper {
         System.out.println("Current Rcv addr: " + tc1.getWallet().currentReceiveAddress());
         this.setTc(tc1);
     }
-
+    
     public String sendBitcoin(String amount, String destAddress) {
         String trxString = null;
         System.out.println("Sending " + amount + " satoshis to " + destAddress);

@@ -18,5 +18,7 @@ public interface FinalClientRMIRootInterface extends Remote {
     
     public String requestDataWithTrx(String txHash, String SVER_ID, String SVE_ID) throws RemoteException;
     
-    public void rechargeCredit(String ciao) throws RemoteException;
+    public String rechargeCredit(String trxHash, int userID, int amount) throws RemoteException;
+    
+    public String requestDatawithCredit(String SVER_ID, String SVE_ID, int userID) throws RemoteException;
 }

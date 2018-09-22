@@ -140,7 +140,7 @@ public class Server extends UnicastRemoteObject implements RMIInterface, Seriali
         return GRIDS_MS;
     }
     
-    public void addMap_GRIDS( HashMap map){
+    public void addMap_GRIDS(HashMap map){
         this.GRIDS_MS.add(map);
     }
     

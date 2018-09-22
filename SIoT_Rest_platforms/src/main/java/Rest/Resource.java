@@ -80,8 +80,6 @@ public class Resource {
             look_up = (RMIInterface) Naming.lookup("//localhost/server" + id);
             //System.out.println(look_up.getGRIDS_RS().size());
             Gson gson = new Gson();
-            //gson = new Gson();
-
             return "" + gson.toJson(look_up.getGRIDS_MS().toString());
         } catch (NotBoundException | MalformedURLException | RemoteException ex) {
             Logger.getLogger(Resource.class.getName()).log(Level.SEVERE, null, ex);
@@ -91,7 +89,8 @@ public class Resource {
 
     //**************************
     /**
-     * Should be deleted Example:
+     * Should be deleted 
+     * Example:
      * http://localhost:8080/Sim/SIoT/Server/0/SVER/32
      *
      * @param id
@@ -107,7 +106,6 @@ public class Resource {
             look_up = (RMIInterface) Naming.lookup("//localhost/server" + id);
             //System.out.println(look_up.getGRIDS_RS().size());
             Gson gson = new Gson();
-
             for (ClientInterface c : look_up.getGRIDS_RS().keySet()) {
                 if (c.getUID().equals(uid)) {
                     return "" + gson.toJson(look_up.getGRIDS_RS().get(c)).toString();

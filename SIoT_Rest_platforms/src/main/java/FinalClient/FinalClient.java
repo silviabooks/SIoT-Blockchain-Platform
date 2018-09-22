@@ -40,8 +40,6 @@ public class FinalClient implements FinalClientRMIRootInterface {
         } else {
             // se c'era già, vuol dire che il listener l'aveva già aggiunto,
             // ma devo riempire gli ID
-            //Connection conn = trxm.openConnection();
-            // metodo updateUnconfirmedTrx(trxHash, SVER_ID, SVE_ID)
             trxm.updateUnconfirmedTrx(trxHash, SVER_ID, SVE_ID);
 
         }
@@ -51,9 +49,22 @@ public class FinalClient implements FinalClientRMIRootInterface {
 
     }
     
+
     @Override
-    public void rechargeCredit(String ciao) {
-        // vado a riempire il credito nella tabella!
+    public String rechargeCredit(String trxHash, int userID, int amount) throws RemoteException {
+        
+        trxm = new TrxManager();
+        
+        trxm.addChargeRecord(trxHash, userID, amount);
+        
+        trxm.closeConnection();
+        return "The credit will be available after the transaction will "
+                + "be confirmed!";
+        
     }
-    
+
+    @Override
+    public String requestDatawithCredit(String SVER_ID, String SVE_ID, int userID) throws RemoteException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

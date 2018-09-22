@@ -52,6 +52,26 @@ public class TrxManager {
             Logger.getLogger(TrxManager.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    public void addChargeRecord(String trxHash, int userID, int amount) {
+        try {
+            PreparedStatement pst = connection.prepareStatement(
+                    "INSERT INTO `creditCharges` (trxHash, userID, credit, isConfirmed) "
+                    + "VALUES ('" + trxHash + "', " + userID + ", " 
+                            + amount + ", 0)");
+            pst.execute();
+        } catch (SQLException ex) {
+            Logger.getLogger(TrxManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void confirmCharge() {
+        
+    }
+    
+    public void isChargeConfirmed() {
+        
+    }
 
     public void updateUnconfirmedTrx(String trxHash, String SVER_ID, String SVE_ID) {
         try {
@@ -134,19 +154,6 @@ public class TrxManager {
                     } else {
                         content = "ReadAPIKey not found. The channel could be public";
                     }
-                    // Get the channel ID
-                    //                    String chanID = myResponse.getString("meta")
-                    //                            .replace("https://thingspeak.com/channels/", "");
-                    //                    // Read from ThingSpeak (10 results by default)
-                    //                    // Questo non servirà più visto che restituisco la readKey...
-                    //                    Channel channel = new Channel(Integer.parseInt(chanID));
-                    //                    FeedParameters par = new FeedParameters();
-                    //                    par.results(10);
-                    //                    Feed feed = channel.getChannelFeed(par);
-                    //                    ArrayList<Entry> lista = feed.getEntryList();
-                    //                    Gson gson = new Gson();
-                    //                    content = gson.toJson(lista);
-                    System.out.println(content);
 
                 } catch (ProtocolException | MalformedURLException ex) {
                     Logger.getLogger(TrxManager.class.getName()).log(Level.SEVERE, null, ex);

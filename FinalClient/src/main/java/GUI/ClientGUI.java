@@ -294,14 +294,11 @@ public class ClientGUI extends javax.swing.JFrame {
             String trx = ww.sendBitcoin(currentPrice, addressTextField.getText());
             String sverId = sverTextField.getText();
             String sveId = sveTextField.getText();
-            // TODO corregge la concorrenza in questa parte (aspettare la sendBitcoin)
-            //***
             try {
                 Thread.sleep(500);
             } catch (InterruptedException ex) {
                 Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
             }
-            //***
             try {
                 String result = lookUp.requestDataWithTrx(trx, sverId, sveId);
                 System.out.println(result);
@@ -314,7 +311,7 @@ public class ClientGUI extends javax.swing.JFrame {
             balanceLabel.setText("My balance is: "
                     + ww.getTc().getWallet().getBalance().toFriendlyString());
         } else {
-            priceLabel.setText("Cacca");
+            priceLabel.setText("Error");
         }
 
     }//GEN-LAST:event_sendBitcoinButtonActionPerformed
@@ -341,13 +338,31 @@ public class ClientGUI extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO aggiungere la instant buy
+        // requestDatawithCredit
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void rechargejButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rechargejButtonActionPerformed
-        // TODO aggiungere la trx per ricaricare il credito
-        // lancio un thread per fare la trx e, quando essa sarà verificata, 
-        // avrò il credito nel DB (la siot aggiungerà)
-        
+        int amount = Integer.parseInt(rechargeTextField.getText());
+        String trx = ww.sendBitcoin(rechargeTextField.getText(), "mjvRjidP7u7bqBQA9CsZFUJxB1si9nqaAF");
+        String result = null;
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        try {
+            result = lookUp.rechargeCredit(trx, 111, amount);
+            System.out.println(result);
+            resultTextArea.setLineWrap(true);
+            resultTextArea.setEnabled(true);
+            resultTextArea.append(result + "\n");
+        } catch (RemoteException ex) {
+            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        balanceLabel.setText("My balance is: "
+                + ww.getTc().getWallet().getBalance().toFriendlyString());
+
+
     }//GEN-LAST:event_rechargejButtonActionPerformed
 
     /**

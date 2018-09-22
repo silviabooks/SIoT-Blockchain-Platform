@@ -11,5 +11,5 @@ package Setup;
  */
 public class Setup {
     //public static final String IP_SERVER = "192.168.1.144";
-    public static final String IP_SERVER = "192.168.42.178";
+    public static final String IP_SERVER = "192.168.42.196";
 }

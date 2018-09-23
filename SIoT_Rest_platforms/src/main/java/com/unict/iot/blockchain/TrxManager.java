@@ -7,8 +7,6 @@ package com.unict.iot.blockchain;
 
 import Settings.Setup;
 import static Systems.GridsSystems.ww;
-import com.google.gson.Gson;
-import com.mashape.unirest.http.exceptions.UnirestException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -22,16 +20,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONObject;
-import thingspeak.Channel;
-import thingspeak.Entry;
-import thingspeak.Feed;
-import thingspeak.FeedParameters;
-import thingspeak.ThingSpeakException;
 
 /**
  * Some methods to access the trx database
@@ -52,25 +44,55 @@ public class TrxManager {
             Logger.getLogger(TrxManager.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public void addChargeRecord(String trxHash, int userID, int amount) {
         try {
             PreparedStatement pst = connection.prepareStatement(
                     "INSERT INTO `creditCharges` (trxHash, userID, credit, isConfirmed) "
-                    + "VALUES ('" + trxHash + "', " + userID + ", " 
-                            + amount + ", 0)");
+                    + "VALUES ('" + trxHash + "', " + userID + ", "
+                    + amount + ", 0)");
             pst.execute();
         } catch (SQLException ex) {
             Logger.getLogger(TrxManager.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public void confirmCharge() {
-        
+
+    public void confirmCharge(String trxHash) {
+        try {
+            // set 'isConfirmed' to 1 in table 'creditCharges'...
+            PreparedStatement pst = connection.prepareStatement("UPDATE "
+                    + "`creditCharges` SET `isConfirmed`=1"
+                    + " WHERE `trxHash`='" + trxHash + "'");
+            pst.execute();
+            // ...and delete row from table 'unconfirmed'
+            pst = connection.prepareStatement("DELETE FROM `unconfirmed` "
+                    + "WHERE `TrxHash`='" + trxHash + "'");
+            pst.execute();
+        } catch (SQLException ex) {
+            Logger.getLogger(TrxManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
-    
-    public void isChargeConfirmed() {
-        
+
+    public boolean isChargeConfirmed() {
+
+        return true;
+    }
+
+    public int getCredit(int userID) {
+        int credit = 0;
+        try {
+            Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT SUM(credit) FROM "
+                    + "`creditCharges` WHERE `userID`="
+                    + userID + " AND `isConfirmed`=1 GROUP BY `userID`");
+            while(rs.next()) {
+                credit += rs.getInt("SUM(credit)");
+            }
+            System.out.println("Credit of user "+ userID + ": " + credit);
+        } catch (SQLException ex) {
+            Logger.getLogger(TrxManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return credit;
     }
 
     public void updateUnconfirmedTrx(String trxHash, String SVER_ID, String SVE_ID) {

@@ -44,14 +44,14 @@ public class WalletWrapper {
                 = new SIoTBitcoinClient("/home/silvia/tesi/Blockchain/wallets", "sender-wallet");
         System.out.println("Balance: " + tc1.getWallet().getBalance().toFriendlyString());
         final NetworkParameters netPars = tc1.getParams();
-        // Watched addresses
+        // Add watched addresses
         final Address address = new Address(tc1.getParams(), "n2dVfxCAtYHxAu8R9t8Vmy6KWZviv3bs47");
         final Address chargeAddress = new Address(tc1.getParams(), "mjvRjidP7u7bqBQA9CsZFUJxB1si9nqaAF");
         tc1.getWallet().addWatchedAddress(address);
         tc1.getWallet().addWatchedAddress(chargeAddress);
-        System.err.println("My address is: n2dVfxCAtYHxAu8R9t8Vmy6KWZviv3bs47");
+        System.out.println("My address is: n2dVfxCAtYHxAu8R9t8Vmy6KWZviv3bs47");
         System.out.println("My address for CHARGES is: mjvRjidP7u7bqBQA9CsZFUJxB1si9nqaAF");
-        // Listener
+        // Confidence Event Listener
         tc1.getWallet().addTransactionConfidenceEventListener(
                 new TransactionConfidenceEventListener() {
             @Override
@@ -69,40 +69,32 @@ public class WalletWrapper {
                     if (toAddress.equals(chargeAddress.toString())) {
                         isChargeAddress = true;
                     }
-                    // verifica con chargeAddress
-                    // se toAddress.equals(chargeAddress.toString()) allora 
-                    //    metto la entry nel DB, altrimenti vado avanti
                 }
 
                 // Differentiate actions: CREDIT CHARGE TRANSACTION
                 if (isChargeAddress) {
-                    System.out.println("Sono una trx di ricarica! Ricarico il"
-                            + " credito dell'utente identificato da non so cosa");
                     // Confirmation control
                     TransactionConfidence confidence = tx.getConfidence();
                     int depth = confidence.getDepthInBlocks();
                     String trxString = tx.getHashAsString();
-
-                    if (depth == 0) { // La trx non è ancora nella Blockchain
-                        // Verifico se l'hash è presente
+                    if (depth == 0) { // The trx isn't in the Blockchain yet
+                        // Verify if the hash is present
                         if (unconfirmedTrxs.add(trxString)) {
-                            // se non c'era, l'aggiungo sia nel set che nel DB
-                            //System.out.println("Unconfirmed trx: " + trxString);
+                            // if it wasn't there, add it in the set and in the DB
                             TrxManager trxm = new TrxManager();
+                            System.out.println("metto charge");
                             trxm.addUnconfirmedTrx(trxString, "charge", "charge");
                             trxm.closeConnection();
                         }
-                        // se c'era, non faccio niente
-                    } else { // La trx è stata inserita nella Blockchain
-                        // se non c'è nel set, non faccio niente
-                        // se c'è, la levo sia dal set che dal DB
+                        // if it was there, nothing to do
+                    } else { // The trx has been inserted in the Blockchain
+                        // if it isn't in the set, do nothing
+                        // otherwise, delete it from the set and from the DB
                         if (unconfirmedTrxs.contains(trxString)) {
-                            System.out.println("*** Charge " + trxString
+                            System.out.println("*********** Charge " + trxString
                                     + " confirmed! *********");
                             TrxManager trxm = new TrxManager();
-                            //////////////////////////////////////////
-                            // metto a uno la voce corrispondente al trxHash
-                            // TODO metodo nel trxm per mettere a 1 la voce
+                            trxm.confirmCharge(trxString);
                             trxm.closeConnection();
                             unconfirmedTrxs.remove(trxString);
                         }
@@ -113,27 +105,26 @@ public class WalletWrapper {
                 if (isRcvAddress) {
                     boolean valoreFantomatico = tx.getValueSentFromMe(wallet)
                             .compareTo(tx.getValueSentToMe(wallet)) < 0;
-                    // se è > 0, allora li ho sborsati
-                    // se è < 0, allora li ho ricevuti
+                    // if > 0, the money are spent
+                    // if < 0, the money are received
                     if (tx.getValueSentFromMe(wallet).isZero() || valoreFantomatico) {
                         TransactionConfidence confidence = tx.getConfidence();
                         // Confirmation control
                         int depth = confidence.getDepthInBlocks();
                         String trxString = tx.getHashAsString();
 
-                        if (depth == 0) { // La trx non è ancora nella Blockchain
-                            // Verifico se l'hash è presente
+                        if (depth == 0) { // The trx isn't in the Blockchain yet
+                            // Verify if the hash is present
                             if (unconfirmedTrxs.add(trxString)) {
-                                // se non c'era, l'aggiungo sia nel set che nel DB
-                                //System.out.println("Unconfirmed trx: " + trxString);
+                                // if it wasn't there, add it in the set and in the DB
                                 TrxManager trxm = new TrxManager();
                                 trxm.addUnconfirmedTrx(trxString, "", "");
                                 trxm.closeConnection();
                             }
-                            // se c'era, non faccio niente
-                        } else { // La trx è stata inserita nella Blockchain
-                            // se non c'è nel set, non faccio niente
-                            // se c'è, la levo sia dal set che dal DB
+                            // if it was there, nothing to do
+                        } else { // The trx has been inserted in the Blockchain
+                            // if it isn't in the set, do nothing
+                            // otherwise, delete it from the set and from the DB
                             if (unconfirmedTrxs.contains(trxString)) {
                                 System.out.println("*** Transaction " + trxString
                                         + " confirmed! *********");

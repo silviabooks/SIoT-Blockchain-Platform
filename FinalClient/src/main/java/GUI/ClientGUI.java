@@ -71,6 +71,7 @@ public class ClientGUI extends javax.swing.JFrame {
         rechargejButton = new javax.swing.JButton();
         rechargeTextField = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
+        getCreditjButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -216,6 +217,13 @@ public class ClientGUI extends javax.swing.JFrame {
             }
         });
 
+        getCreditjButton.setText("Check Credit");
+        getCreditjButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                getCreditjButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -224,7 +232,6 @@ public class ClientGUI extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
@@ -232,7 +239,11 @@ public class ClientGUI extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(rechargeTextField)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(rechargejButton)))
+                        .addComponent(rechargejButton))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(getCreditjButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 254, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -249,7 +260,9 @@ public class ClientGUI extends javax.swing.JFrame {
                     .addComponent(rechargejButton)
                     .addComponent(rechargeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1)
+                    .addComponent(getCreditjButton))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -351,7 +364,7 @@ public class ClientGUI extends javax.swing.JFrame {
             Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
         }
         try {
-            result = lookUp.rechargeCredit(trx, 111, amount);
+            result = lookUp.rechargeCredit(trx, Setup.Setup.USER_ID, amount);
             System.out.println(result);
             resultTextArea.setLineWrap(true);
             resultTextArea.setEnabled(true);
@@ -364,6 +377,18 @@ public class ClientGUI extends javax.swing.JFrame {
 
 
     }//GEN-LAST:event_rechargejButtonActionPerformed
+
+    private void getCreditjButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getCreditjButtonActionPerformed
+        int credit = 0;
+        try {
+            credit = lookUp.getCredit(Setup.Setup.USER_ID);
+        } catch (RemoteException ex) {
+            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        resultTextArea.setLineWrap(true);
+        resultTextArea.setEnabled(true);
+        resultTextArea.append("Your credit is: " + credit + " satoshis \n");
+    }//GEN-LAST:event_getCreditjButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -404,6 +429,7 @@ public class ClientGUI extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField addressTextField;
     private javax.swing.JLabel balanceLabel;
+    private javax.swing.JButton getCreditjButton;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;

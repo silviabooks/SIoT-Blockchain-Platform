@@ -52,19 +52,23 @@ public class FinalClient implements FinalClientRMIRootInterface {
 
     @Override
     public String rechargeCredit(String trxHash, int userID, int amount) throws RemoteException {
-        
         trxm = new TrxManager();
-        
         trxm.addChargeRecord(trxHash, userID, amount);
-        
         trxm.closeConnection();
         return "The credit will be available after the transaction will "
                 + "be confirmed!";
-        
     }
 
     @Override
     public String requestDatawithCredit(String SVER_ID, String SVE_ID, int userID) throws RemoteException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int getCredit(int userID) throws RemoteException {
+        trxm = new TrxManager();
+        int credit = trxm.getCredit(userID);
+        trxm.closeConnection();
+        return credit;
     }
 }

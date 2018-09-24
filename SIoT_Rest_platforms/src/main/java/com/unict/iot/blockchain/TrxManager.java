@@ -34,6 +34,7 @@ public class TrxManager {
 
     private static Connection connection;
 
+    // TODO add private method to retrieve price and walletAddress
     public TrxManager() {
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -73,9 +74,53 @@ public class TrxManager {
         }
     }
 
-    public boolean isChargeConfirmed() {
-
-        return true;
+    public String getDataWithCredit(String SVER_ID, String SVE_ID,
+            int userID) {
+        String res = "";
+        try {
+            String url = "http://localhost:8080/Sim/SIoT/Server/" + SVER_ID + "/" + SVE_ID;
+            URL obj = new URL(url);
+            HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
+            conn.setRequestMethod("GET");
+            StringBuilder response;
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            String inputLine;
+            response = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            JSONObject myResponse = new JSONObject(response.toString());
+            final String walletAddress = myResponse.getString("walletAddress");
+            final String price = myResponse.getString("price");
+            // Check if credit is available with subtractCredit
+            boolean sub = subtractCredit(userID, (Integer.parseInt(price) + 1000));
+            if (!sub) {
+                res = "You don't have enough credit to perform the request!";
+            } else {
+                // if so, start thread. If not, return error string
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        System.out.println(" *** SENDING COMMISSION to " + walletAddress);
+                        ww.getTc().makeTransaction(walletAddress, price);
+                    }
+                });
+                thread.start();
+                Statement keyStmt = connection.createStatement();
+                ResultSet resSet = keyStmt.executeQuery("SELECT readAPIkey FROM `readAPIkeys` "
+                        + "WHERE SVER_ID='" + SVER_ID + "' AND SVE_ID='" + SVE_ID + "'");
+                if (resSet.next()) {
+                    res = resSet.getString("readAPIkey");
+                } else {
+                    res = "ReadAPIKey not found. The channel could be public";
+                }
+            }
+        } catch (MalformedURLException | ProtocolException | SQLException ex) {
+            Logger.getLogger(TrxManager.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(TrxManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return res;
     }
 
     public int getCredit(int userID) {
@@ -85,14 +130,53 @@ public class TrxManager {
             ResultSet rs = stmt.executeQuery("SELECT SUM(credit) FROM "
                     + "`creditCharges` WHERE `userID`="
                     + userID + " AND `isConfirmed`=1 GROUP BY `userID`");
-            while(rs.next()) {
+            while (rs.next()) {
                 credit += rs.getInt("SUM(credit)");
             }
-            System.out.println("Credit of user "+ userID + ": " + credit);
+            System.out.println("Credit of user " + userID + ": " + credit);
         } catch (SQLException ex) {
             Logger.getLogger(TrxManager.class.getName()).log(Level.SEVERE, null, ex);
         }
         return credit;
+    }
+
+    private boolean subtractCredit(int userID, int amount) {
+        boolean outcome = false;
+        try {
+            int initialCredit = getCredit(userID);
+            if (initialCredit < amount) {
+                outcome = false; // not enough credit
+            } else if (initialCredit == amount) {
+                // delete the records because the credit is now zero
+                PreparedStatement pst = connection.prepareStatement(
+                        "DELETE FROM `creditCharges` WHERE `userID`=" + userID
+                        + " AND `isConfirmed`=1");
+                pst.execute();
+                outcome = true;
+            } else { // subtract
+                int credit = 0;
+                String sql = "SELECT `credit` FROM `creditCharges` WHERE `userID`=" + userID
+                        + " AND `isConfirmed`=1 ORDER BY `credit` DESC LIMIT 1";
+                Statement keyStmt = connection.createStatement();
+                ResultSet res = keyStmt.executeQuery(sql);
+                if (res.next()) {
+                    credit = Integer.valueOf(res.getString("credit"));
+                } else {
+                    outcome = false;
+                }
+                int newVal = credit - amount;
+                sql = "UPDATE `creditCharges` SET `credit`=" + newVal
+                        + " WHERE `userID`=" + userID
+                        + " AND `isConfirmed`=1 AND `credit`=" + credit
+                        + " LIMIT 1";
+                PreparedStatement pst = connection.prepareStatement(sql);
+                pst.execute();
+                outcome = true;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(TrxManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return outcome;
     }
 
     public void updateUnconfirmedTrx(String trxHash, String SVER_ID, String SVE_ID) {

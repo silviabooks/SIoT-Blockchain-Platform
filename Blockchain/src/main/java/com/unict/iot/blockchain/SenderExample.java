@@ -11,7 +11,7 @@ import java.util.Scanner;
  *
  * @author silvia
  */
-public class Client1 {
+public class SenderExample {
     public static void main(String args[]) {
         TransactionClient c = new TransactionClient("./wallets", "sender-wallet");
         System.out.println("Hello! I'm the sender. My current address is: ");

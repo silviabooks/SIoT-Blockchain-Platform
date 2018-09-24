@@ -14,8 +14,6 @@ import java.rmi.RemoteException;
  */
 public interface FinalClientRMIRootInterface extends Remote {
     
-    public String helloWorld() throws RemoteException;
-    
     public String requestDataWithTrx(String txHash, String SVER_ID, String SVE_ID) throws RemoteException;
     
     public String rechargeCredit(String trxHash, int userID, int amount) throws RemoteException;

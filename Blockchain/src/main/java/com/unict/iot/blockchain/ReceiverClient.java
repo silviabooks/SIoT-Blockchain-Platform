@@ -13,7 +13,7 @@ import org.bitcoinj.core.Address;
  *
  * @author silvia
  */
-public class Client2 {
+public class ReceiverClient {
     public static void main(String args[]) {
         TransactionClient c = new TransactionClient("./wallets", "receiver-wallet");
         System.out.println("Hello! I'm the receiver.");

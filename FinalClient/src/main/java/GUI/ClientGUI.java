@@ -70,7 +70,7 @@ public class ClientGUI extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         rechargejButton = new javax.swing.JButton();
         rechargeTextField = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
+        instantBuyjButton = new javax.swing.JButton();
         getCreditjButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -210,10 +210,10 @@ public class ClientGUI extends javax.swing.JFrame {
             }
         });
 
-        jButton1.setText("Instant Buy");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        instantBuyjButton.setText("Instant Buy");
+        instantBuyjButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                instantBuyjButtonActionPerformed(evt);
             }
         });
 
@@ -243,7 +243,7 @@ public class ClientGUI extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(getCreditjButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 254, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(instantBuyjButton, javax.swing.GroupLayout.PREFERRED_SIZE, 254, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -261,7 +261,7 @@ public class ClientGUI extends javax.swing.JFrame {
                     .addComponent(rechargeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
+                    .addComponent(instantBuyjButton)
                     .addComponent(getCreditjButton))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -349,10 +349,20 @@ public class ClientGUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_startButtonActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO aggiungere la instant buy
-        // requestDatawithCredit
-    }//GEN-LAST:event_jButton1ActionPerformed
+    private void instantBuyjButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_instantBuyjButtonActionPerformed
+        try {
+            String sverId = sverTextField.getText();
+            String sveId = sveTextField.getText();
+            String result = lookUp.requestDatawithCredit(sverId, sveId, Setup.Setup.USER_ID);
+            System.out.println(result);
+            resultTextArea.setLineWrap(true);
+            resultTextArea.setEnabled(true);
+            resultTextArea.append(result + "\n");
+        } catch (RemoteException ex) {
+            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }//GEN-LAST:event_instantBuyjButtonActionPerformed
 
     private void rechargejButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rechargejButtonActionPerformed
         int amount = Integer.parseInt(rechargeTextField.getText());
@@ -430,7 +440,7 @@ public class ClientGUI extends javax.swing.JFrame {
     private javax.swing.JTextField addressTextField;
     private javax.swing.JLabel balanceLabel;
     private javax.swing.JButton getCreditjButton;
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton instantBuyjButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

@@ -17,14 +17,6 @@ public class FinalClient implements FinalClientRMIRootInterface {
 
     private TrxManager trxm;
 
-    // aggiungere il coso che farà le letture su Thingspeak
-    // e anche la GET
-    @Override
-    public String helloWorld() throws RemoteException {
-        System.out.println("Ciao mbare");
-        return "Ciao mbare";
-    }
-
     @Override
     public String requestDataWithTrx(String trxHash, String SVER_ID, String SVE_ID) {
         /**
@@ -48,7 +40,6 @@ public class FinalClient implements FinalClientRMIRootInterface {
                 + "http://localhost:8080/Sim/SIoT/Transaction/" + trxHash;
 
     }
-    
 
     @Override
     public String rechargeCredit(String trxHash, int userID, int amount) throws RemoteException {
@@ -60,8 +51,12 @@ public class FinalClient implements FinalClientRMIRootInterface {
     }
 
     @Override
-    public String requestDatawithCredit(String SVER_ID, String SVE_ID, int userID) throws RemoteException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public String requestDatawithCredit(String SVER_ID, 
+            String SVE_ID, int userID) throws RemoteException {
+        trxm = new TrxManager();
+        String res = trxm.getDataWithCredit(SVER_ID, SVE_ID, userID);
+        trxm.closeConnection();
+        return res;
     }
 
     @Override

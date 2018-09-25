@@ -7,7 +7,11 @@ package Systems;
 
 import com.unict.iot.blockchain.SIoTBitcoinClient;
 import com.unict.iot.blockchain.TrxManager;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Transaction;
@@ -130,6 +134,10 @@ public class WalletWrapper {
                                         + " confirmed! *********");
                                 TrxManager trxm = new TrxManager();
                                 trxm.confirmTrxAndReadData(trxString);
+                                
+                                // TIMESTAMP
+                                writeOnFile(trxString, System.currentTimeMillis(), "parte2.csv");
+                                
                                 trxm.closeConnection();
                                 unconfirmedTrxs.remove(trxString);
                             }
@@ -140,4 +148,21 @@ public class WalletWrapper {
         });
         this.setTc(tc1);
     }
+    
+    private void writeOnFile(String trx, long value, String fileDesc) {
+        FileWriter out = null;
+        try {
+            out = new FileWriter(fileDesc, true);
+            out.write(trx + "," + value + "\n");
+        } catch (IOException ex) {
+            Logger.getLogger(WalletWrapper.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                out.close();
+            } catch (IOException ex) {
+                Logger.getLogger(WalletWrapper.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    
 }

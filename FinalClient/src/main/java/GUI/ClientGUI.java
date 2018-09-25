@@ -7,7 +7,9 @@ package GUI;
 
 import FinalClient.FinalClientRMIRootInterface;
 import blockchain.WalletWrapper;
+import java.awt.SystemColor;
 import java.io.BufferedReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -21,7 +23,6 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 /**
  *
  * @author silvia
@@ -201,7 +202,7 @@ public class ClientGUI extends javax.swing.JFrame {
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel3.setText("The next time you will get the data instantly!");
 
-        jLabel4.setText("Amount to charge (at least 10000 satoshis) ");
+        jLabel4.setText("Amount to charge (at least 1000 satoshis): ");
 
         rechargejButton.setText("Send");
         rechargejButton.addActionListener(new java.awt.event.ActionListener() {
@@ -271,7 +272,6 @@ public class ClientGUI extends javax.swing.JFrame {
 
     private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchButtonActionPerformed
         try {
-            // come effettuo la ricerca? Con una REST! /Transaction/searchPrice/{sverId}/{sveId}
             String url = "http://localhost:8080/Sim/SIoT/Server/"
                     + sverTextField.getText() + "/"
                     + sveTextField.getText();
@@ -304,20 +304,30 @@ public class ClientGUI extends javax.swing.JFrame {
 
     private void sendBitcoinButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendBitcoinButtonActionPerformed
         if (currentPrice != null) {
+            // TIMESTAMP
+            long before = System.currentTimeMillis();
             String trx = ww.sendBitcoin(currentPrice, addressTextField.getText());
             String sverId = sverTextField.getText();
             String sveId = sveTextField.getText();
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            
+            writeOnFile(trx, before, "parte1.csv");
+            
+            // Lo sleep non serve
+//            try {
+//                Thread.sleep(500);
+//            } catch (InterruptedException ex) {
+//                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+//            }
             try {
                 String result = lookUp.requestDataWithTrx(trx, sverId, sveId);
+                // TIMESTAMP
+                long after = System.currentTimeMillis();
                 System.out.println(result);
                 resultTextArea.setLineWrap(true);
                 resultTextArea.setEnabled(true);
                 resultTextArea.append(result + "\n");
+                // DELAY
+                calculateDelay(before, after, "standardBuyDelays.txt");
             } catch (RemoteException ex) {
                 Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -351,13 +361,20 @@ public class ClientGUI extends javax.swing.JFrame {
 
     private void instantBuyjButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_instantBuyjButtonActionPerformed
         try {
+            // TIMESTAMP
+            long before = System.currentTimeMillis();
             String sverId = sverTextField.getText();
             String sveId = sveTextField.getText();
             String result = lookUp.requestDatawithCredit(sverId, sveId, Setup.Setup.USER_ID);
             System.out.println(result);
+            // TIMESTAMP
+            long after = System.currentTimeMillis();
             resultTextArea.setLineWrap(true);
             resultTextArea.setEnabled(true);
             resultTextArea.append(result + "\n");
+            // DELAY
+            calculateDelay(before, after, "instantBuyDelays.txt");
+
         } catch (RemoteException ex) {
             Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -399,6 +416,40 @@ public class ClientGUI extends javax.swing.JFrame {
         resultTextArea.setEnabled(true);
         resultTextArea.append("Your credit is: " + credit + " satoshis \n");
     }//GEN-LAST:event_getCreditjButtonActionPerformed
+
+    private void calculateDelay(long before, long after, String fileDesc) {
+        FileWriter out = null;
+        try {
+            long delay = after - before;
+            // Write on file
+            out = new FileWriter(fileDesc, true);
+            out.write(delay+"\n");
+        } catch (IOException ex) {
+            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                out.close();
+            } catch (IOException ex) {
+                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    
+    private void writeOnFile(String trx, long value, String fileDesc) {
+        FileWriter out = null;
+        try {
+            out = new FileWriter(fileDesc, true);
+            out.write(trx + "," + value + "\n");
+        } catch (IOException ex) {
+            Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                out.close();
+            } catch (IOException ex) {
+                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
 
     /**
      * @param args the command line arguments

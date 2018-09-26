@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 import org.json.JSONObject;
 
 /**
- * Some methods to access the trx database
+ * Methods to access the trx database
  *
  * @author silvia
  */
@@ -34,7 +34,9 @@ public class TrxManager {
 
     private static Connection connection;
 
-    // TODO add private method to retrieve price and walletAddress
+    /**
+     * Creates the connection to the database with JDBC
+     */
     public TrxManager() {
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -46,6 +48,12 @@ public class TrxManager {
         }
     }
 
+    /**
+     * Adds the record in the "creditCharges" table (the trx is not confirmed yet)
+     * @param trxHash
+     * @param userID
+     * @param amount 
+     */
     public void addChargeRecord(String trxHash, int userID, int amount) {
         try {
             PreparedStatement pst = connection.prepareStatement(
@@ -58,14 +66,17 @@ public class TrxManager {
         }
     }
 
+    /**
+     * Set 'isConfirmed' to 1 in row with trxHash of table "creditCharges"
+     * and delete row from table 'unconfirmed'
+     * @param trxHash 
+     */
     public void confirmCharge(String trxHash) {
         try {
-            // set 'isConfirmed' to 1 in table 'creditCharges'...
             PreparedStatement pst = connection.prepareStatement("UPDATE "
                     + "`creditCharges` SET `isConfirmed`=1"
                     + " WHERE `trxHash`='" + trxHash + "'");
             pst.execute();
-            // ...and delete row from table 'unconfirmed'
             pst = connection.prepareStatement("DELETE FROM `unconfirmed` "
                     + "WHERE `TrxHash`='" + trxHash + "'");
             pst.execute();
@@ -74,6 +85,13 @@ public class TrxManager {
         }
     }
 
+    /**
+     * 
+     * @param SVER_ID
+     * @param SVE_ID
+     * @param userID
+     * @return 
+     */
     public String getDataWithCredit(String SVER_ID, String SVE_ID,
             int userID) {
         String res = "";
@@ -92,12 +110,12 @@ public class TrxManager {
             JSONObject myResponse = new JSONObject(response.toString());
             final String walletAddress = myResponse.getString("walletAddress");
             final String price = myResponse.getString("price");
-            // Check if credit is available with subtractCredit
-            boolean sub = subtractCredit(userID, (Integer.parseInt(price) + 1000));
+            // Check if credit is available with subtractCredit...
+            boolean sub = subtractCredit(userID, (Integer.parseInt(price)));
             if (!sub) {
                 res = "You don't have enough credit to perform the request!";
             } else {
-                // if so, start thread. If not, return error string
+                // ...if so, start thread. If not, return error string
                 Thread thread = new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -105,7 +123,7 @@ public class TrxManager {
                         ww.getTc().makeTransaction(walletAddress, price);
                     }
                 });
-                thread.start();
+                //thread.start();
                 Statement keyStmt = connection.createStatement();
                 ResultSet resSet = keyStmt.executeQuery("SELECT readAPIkey FROM `readAPIkeys` "
                         + "WHERE SVER_ID='" + SVER_ID + "' AND SVE_ID='" + SVE_ID + "'");
@@ -153,7 +171,7 @@ public class TrxManager {
                         + " AND `isConfirmed`=1");
                 pst.execute();
                 outcome = true;
-            } else { // subtract
+            } else { // subtract credit mindfully
                 int credit = 0;
                 String sql = "SELECT `credit` FROM `creditCharges` WHERE `userID`=" + userID
                         + " AND `isConfirmed`=1 ORDER BY `credit` DESC LIMIT 1";
@@ -165,6 +183,7 @@ public class TrxManager {
                     outcome = false;
                 }
                 int newVal = credit - amount;
+                // subtract credit only from one entry of the table
                 sql = "UPDATE `creditCharges` SET `credit`=" + newVal
                         + " WHERE `userID`=" + userID
                         + " AND `isConfirmed`=1 AND `credit`=" + credit
@@ -251,7 +270,7 @@ public class TrxManager {
                             ww.getTc().makeTransaction(walletAddress, price);
                         }
                     });
-                    thread.start();
+                    //thread.start();
                     Statement keyStmt = connection.createStatement();
                     ResultSet res = keyStmt.executeQuery("SELECT readAPIkey FROM `readAPIkeys` "
                             + "WHERE SVER_ID='" + sverId + "' AND SVE_ID='" + sveId + "'");

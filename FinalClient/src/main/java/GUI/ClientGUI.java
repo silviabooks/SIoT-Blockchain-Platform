@@ -7,7 +7,6 @@ package GUI;
 
 import FinalClient.FinalClientRMIRootInterface;
 import blockchain.WalletWrapper;
-import java.awt.SystemColor;
 import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -23,12 +22,14 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 /**
  *
  * @author silvia
  */
 public class ClientGUI extends javax.swing.JFrame {
 
+    public static final int N_ATTEMPT = 6;
     private final WalletWrapper ww;
     private FinalClientRMIRootInterface lookUp;
     private static String currentPrice;
@@ -66,6 +67,8 @@ public class ClientGUI extends javax.swing.JFrame {
         searchButton = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         priceLabel = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
@@ -137,6 +140,20 @@ public class ClientGUI extends javax.swing.JFrame {
         priceLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         priceLabel.setText(" ");
 
+        jButton1.setText("TEST 1");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jButton2.setText("TEST 2");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -154,10 +171,16 @@ public class ClientGUI extends javax.swing.JFrame {
                         .addComponent(sendBitcoinButton))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(sveLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jButton2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(sveLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 176, Short.MAX_VALUE))
                             .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(priceLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(sverLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                .addComponent(jButton1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(sverLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(searchButton, javax.swing.GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
@@ -175,13 +198,17 @@ public class ClientGUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(balanceLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(sverLabel)
-                    .addComponent(sverTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(sveLabel)
-                    .addComponent(sveTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(sverLabel)
+                            .addComponent(sverTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(sveLabel)
+                            .addComponent(sveTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton2)))
+                    .addComponent(jButton1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(searchButton)
@@ -303,31 +330,21 @@ public class ClientGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_sverTextFieldActionPerformed
 
     private void sendBitcoinButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendBitcoinButtonActionPerformed
+        // SLOW TRANSACTION
+
         if (currentPrice != null) {
-            // TIMESTAMP
-            long before = System.currentTimeMillis();
             String trx = ww.sendBitcoin(currentPrice, addressTextField.getText());
             String sverId = sverTextField.getText();
             String sveId = sveTextField.getText();
-            
-            writeOnFile(trx, before, "parte1.csv");
-            
-            // Lo sleep non serve
-//            try {
-//                Thread.sleep(500);
-//            } catch (InterruptedException ex) {
-//                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
-//            }
             try {
-                String result = lookUp.requestDataWithTrx(trx, sverId, sveId);
-                // TIMESTAMP
-                long after = System.currentTimeMillis();
-                System.out.println(result);
-                resultTextArea.setLineWrap(true);
-                resultTextArea.setEnabled(true);
-                resultTextArea.append(result + "\n");
-                // DELAY
-                calculateDelay(before, after, "standardBuyDelays.txt");
+                if (sverId != null) {
+                    String result = lookUp.requestDataWithTrx(trx, sverId, sveId);
+
+                    System.out.println(result);
+                    resultTextArea.setLineWrap(true);
+                    resultTextArea.setEnabled(true);
+                    resultTextArea.append(result + "\n");
+                }
             } catch (RemoteException ex) {
                 Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -417,13 +434,100 @@ public class ClientGUI extends javax.swing.JFrame {
         resultTextArea.append("Your credit is: " + credit + " satoshis \n");
     }//GEN-LAST:event_getCreditjButtonActionPerformed
 
+    /**
+     * Start test for the "slow" transactions
+     *
+     * @param evt
+     */
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TEST 1: make 50 "slow" transactions
+
+        for (int i = 0; i < 20; i++) {
+            if (currentPrice != null) {
+                // TIMESTAMP
+                long before = System.currentTimeMillis();
+                String trx = ww.sendBitcoin(currentPrice, addressTextField.getText());
+                String sverId = sverTextField.getText();
+                String sveId = sveTextField.getText();
+                writeOnFile(trx, before, "slowtrxpart1-attempt" + N_ATTEMPT + ".csv");
+                try {
+                    long after = 0;
+                    if (sverId != null) {
+                        String result = lookUp.requestDataWithTrx(trx, sverId, sveId);
+                        after = System.currentTimeMillis();
+                        System.out.println(result);
+                        resultTextArea.setLineWrap(true);
+                        resultTextArea.setEnabled(true);
+                        resultTextArea.append(result + "\n");
+                    }
+                    // DELAY
+                    calculateDelay(before, after, "standardBuyDelays-attempt" + N_ATTEMPT + ".txt");
+                } catch (RemoteException ex) {
+                    Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                balanceLabel.setText("My balance is: "
+                        + ww.getTc().getWallet().getBalance().toFriendlyString());
+            } else {
+                priceLabel.setText("Error");
+            }
+            // Metto una sleep? 
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException ex) {
+//                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+        }
+
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    /**
+     * Start test for the "fast" transactions
+     *
+     * @param evt
+     */
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TEST 2: make 100 "fast" transaction
+        for (int i = 0; i < 100; i++) {
+            try {
+                // TIMESTAMP
+                long before = System.currentTimeMillis();
+                String sverId = sverTextField.getText();
+                String sveId = sveTextField.getText();
+                String result = lookUp.requestDatawithCredit(sverId, sveId, Setup.Setup.USER_ID);
+                System.out.println(result);
+                // TIMESTAMP
+                long after = System.currentTimeMillis();
+                resultTextArea.setLineWrap(true);
+                resultTextArea.setEnabled(true);
+                resultTextArea.append(result + "\n");
+                // DELAY
+                calculateDelay(before, after, "instantBuyDelays26-9.txt");
+
+            } catch (RemoteException ex) {
+                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    /**
+     * Calculates delay and writes it on file. Evaluation purposes
+     *
+     * @param before
+     * @param after
+     * @param fileDesc
+     */
     private void calculateDelay(long before, long after, String fileDesc) {
         FileWriter out = null;
         try {
             long delay = after - before;
             // Write on file
             out = new FileWriter(fileDesc, true);
-            out.write(delay+"\n");
+            out.write(delay + "\n");
         } catch (IOException ex) {
             Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
@@ -434,7 +538,15 @@ public class ClientGUI extends javax.swing.JFrame {
             }
         }
     }
-    
+
+    /**
+     * Writes the timestamp on file (the other timestamp will be measured in the
+     * SIoT wallet listener when the trx will be confirmed). For evaluation
+     *
+     * @param trx
+     * @param value
+     * @param fileDesc
+     */
     private void writeOnFile(String trx, long value, String fileDesc) {
         FileWriter out = null;
         try {
@@ -492,6 +604,8 @@ public class ClientGUI extends javax.swing.JFrame {
     private javax.swing.JLabel balanceLabel;
     private javax.swing.JButton getCreditjButton;
     private javax.swing.JButton instantBuyjButton;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

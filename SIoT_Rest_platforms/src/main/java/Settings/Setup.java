@@ -16,4 +16,6 @@ public final class Setup {
     public static final String GATEWAY = "localhost";
     //public static final String IP_SVER = "192.168.1.144";
     public static final String IP_SVER = "192.168.42.178";
+    public static final String NORMAL_ADDR = "n2dVfxCAtYHxAu8R9t8Vmy6KWZviv3bs47";
+    public static final String CHARGE_ADDR = "mjvRjidP7u7bqBQA9CsZFUJxB1si9nqaAF";
 }

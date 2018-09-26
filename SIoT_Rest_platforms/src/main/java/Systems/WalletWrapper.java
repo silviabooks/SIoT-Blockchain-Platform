@@ -26,6 +26,7 @@ import org.bitcoinj.wallet.Wallet;
  */
 public class WalletWrapper {
 
+    public static final int N_ATTEMPT = 6;
     private static SIoTBitcoinClient tc;
     public static HashSet<String> unconfirmedTrxs;
 
@@ -43,18 +44,22 @@ public class WalletWrapper {
         tc = tc1;
     }
 
+    /**
+     * Wallet creation. Create a SIoTBitcoinClient instance with the right path 
+     * and name, assign the two watched addresses and add the Confidence Event Listener
+     */
     public void createWallet() {
         final SIoTBitcoinClient tc1
                 = new SIoTBitcoinClient("/home/silvia/tesi/Blockchain/wallets", "sender-wallet");
         System.out.println("Balance: " + tc1.getWallet().getBalance().toFriendlyString());
         final NetworkParameters netPars = tc1.getParams();
         // Add watched addresses
-        final Address address = new Address(tc1.getParams(), "n2dVfxCAtYHxAu8R9t8Vmy6KWZviv3bs47");
-        final Address chargeAddress = new Address(tc1.getParams(), "mjvRjidP7u7bqBQA9CsZFUJxB1si9nqaAF");
+        final Address address = new Address(tc1.getParams(), Settings.Setup.NORMAL_ADDR);
+        final Address chargeAddress = new Address(tc1.getParams(), Settings.Setup.CHARGE_ADDR);
         tc1.getWallet().addWatchedAddress(address);
         tc1.getWallet().addWatchedAddress(chargeAddress);
-        System.out.println("My address is: n2dVfxCAtYHxAu8R9t8Vmy6KWZviv3bs47");
-        System.out.println("My address for CHARGES is: mjvRjidP7u7bqBQA9CsZFUJxB1si9nqaAF");
+        System.out.println("My address is: " + Settings.Setup.NORMAL_ADDR);
+        System.out.println("My address for CHARGES is: " + Settings.Setup.CHARGE_ADDR);
         // Confidence Event Listener
         tc1.getWallet().addTransactionConfidenceEventListener(
                 new TransactionConfidenceEventListener() {
@@ -67,10 +72,10 @@ public class WalletWrapper {
                     String toAddress = tout.getScriptPubKey()
                             .getToAddress(netPars).toString();
                     // Verify if toAddress is the normal address or the charge one
-                    if (toAddress.equals(address.toString())) {
+                    if (toAddress.equals(Settings.Setup.NORMAL_ADDR)) {
                         isRcvAddress = true;
                     }
-                    if (toAddress.equals(chargeAddress.toString())) {
+                    if (toAddress.equals(Settings.Setup.CHARGE_ADDR)) {
                         isChargeAddress = true;
                     }
                 }
@@ -86,7 +91,6 @@ public class WalletWrapper {
                         if (unconfirmedTrxs.add(trxString)) {
                             // if it wasn't there, add it in the set and in the DB
                             TrxManager trxm = new TrxManager();
-                            System.out.println("metto charge");
                             trxm.addUnconfirmedTrx(trxString, "charge", "charge");
                             trxm.closeConnection();
                         }
@@ -122,7 +126,8 @@ public class WalletWrapper {
                             if (unconfirmedTrxs.add(trxString)) {
                                 // if it wasn't there, add it in the set and in the DB
                                 TrxManager trxm = new TrxManager();
-                                trxm.addUnconfirmedTrx(trxString, "", "");
+                                //Cheat
+                                trxm.addUnconfirmedTrx(trxString, "0", "31");
                                 trxm.closeConnection();
                             }
                             // if it was there, nothing to do
@@ -130,14 +135,11 @@ public class WalletWrapper {
                             // if it isn't in the set, do nothing
                             // otherwise, delete it from the set and from the DB
                             if (unconfirmedTrxs.contains(trxString)) {
+                                writeOnFile(trxString, System.currentTimeMillis(), "slowtrxpart2-attempt"+N_ATTEMPT+".csv");
                                 System.out.println("*** Transaction " + trxString
                                         + " confirmed! *********");
                                 TrxManager trxm = new TrxManager();
-                                trxm.confirmTrxAndReadData(trxString);
-                                
-                                // TIMESTAMP
-                                writeOnFile(trxString, System.currentTimeMillis(), "parte2.csv");
-                                
+                                trxm.confirmTrxAndReadData(trxString);                                
                                 trxm.closeConnection();
                                 unconfirmedTrxs.remove(trxString);
                             }
@@ -149,6 +151,12 @@ public class WalletWrapper {
         this.setTc(tc1);
     }
     
+    /**
+     * Writes timestamp on file (second part). For evaluation.
+     * @param trx
+     * @param value
+     * @param fileDesc 
+     */
     private void writeOnFile(String trx, long value, String fileDesc) {
         FileWriter out = null;
         try {

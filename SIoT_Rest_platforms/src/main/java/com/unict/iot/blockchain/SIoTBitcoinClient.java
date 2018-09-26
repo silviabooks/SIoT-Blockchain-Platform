@@ -84,6 +84,12 @@ public class SIoTBitcoinClient {
         return this.params;
     }
     
+    /**
+     * Performs transaction to destAddress of amount satoshis
+     * @param destAddress
+     * @param amount
+     * @return 
+     */
     public String makeTransaction(String destAddress, String amount) {
         String txString = null;
         System.out.println("*** Sending " + amount + " satoshis to " + destAddress);

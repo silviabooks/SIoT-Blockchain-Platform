@@ -38,8 +38,10 @@ public class WalletWrapper {
     public void createWallet() {
         BitcoinClient tc1
                 = new BitcoinClient(".", "final-app-wallet");
+        final Address address = new Address(tc1.getParams(), Setup.Setup.WATCHED_ADDR);
+        tc1.getWallet().addWatchedAddress(address);
         System.out.println("Balance: " + tc1.getWallet().getBalance().toFriendlyString());
-        System.out.println("Current Rcv addr: " + tc1.getWallet().currentReceiveAddress());
+        System.out.println("Rcv addr: " + Setup.Setup.WATCHED_ADDR);
         this.setTc(tc1);
     }
     

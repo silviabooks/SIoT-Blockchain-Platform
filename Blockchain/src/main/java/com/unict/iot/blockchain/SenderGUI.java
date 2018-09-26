@@ -17,7 +17,7 @@ public class SenderGUI extends javax.swing.JFrame {
      * Creates new form SenderGUI
      */
     public SenderGUI() {
-        sender = new TransactionClient("./wallets", "sender-wallet");
+        sender = new TransactionClient("./wallets", "receiver-wallet");
         initComponents();
     }
 
@@ -164,21 +164,6 @@ public class SenderGUI extends javax.swing.JFrame {
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(SenderGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */

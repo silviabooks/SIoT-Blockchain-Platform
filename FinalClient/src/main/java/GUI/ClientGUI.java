@@ -29,7 +29,7 @@ import java.util.logging.Logger;
  */
 public class ClientGUI extends javax.swing.JFrame {
 
-    public static final int N_ATTEMPT = 6;
+    
     private final WalletWrapper ww;
     private FinalClientRMIRootInterface lookUp;
     private static String currentPrice;
@@ -400,7 +400,7 @@ public class ClientGUI extends javax.swing.JFrame {
 
     private void rechargejButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rechargejButtonActionPerformed
         int amount = Integer.parseInt(rechargeTextField.getText());
-        String trx = ww.sendBitcoin(rechargeTextField.getText(), "mjvRjidP7u7bqBQA9CsZFUJxB1si9nqaAF");
+        String trx = ww.sendBitcoin(rechargeTextField.getText(), Setup.Setup.SIOT_CHARGE_ADDR);
         String result = null;
         try {
             Thread.sleep(500);
@@ -449,7 +449,8 @@ public class ClientGUI extends javax.swing.JFrame {
                 String trx = ww.sendBitcoin(currentPrice, addressTextField.getText());
                 String sverId = sverTextField.getText();
                 String sveId = sveTextField.getText();
-                writeOnFile(trx, before, "slowtrxpart1-attempt" + N_ATTEMPT + ".csv");
+                writeOnFile(trx, before, "slowtrxpart1-attempt" 
+                        + Setup.Setup.N_ATTEMPT + ".csv");
                 try {
                     long after = 0;
                     if (sverId != null) {
@@ -461,7 +462,8 @@ public class ClientGUI extends javax.swing.JFrame {
                         resultTextArea.append(result + "\n");
                     }
                     // DELAY
-                    calculateDelay(before, after, "standardBuyDelays-attempt" + N_ATTEMPT + ".txt");
+                    calculateDelay(before, after, "standardBuyDelays-attempt" 
+                            + Setup.Setup.N_ATTEMPT + ".txt");
                 } catch (RemoteException ex) {
                     Logger.getLogger(ClientGUI.class.getName()).log(Level.SEVERE, null, ex);
                 }

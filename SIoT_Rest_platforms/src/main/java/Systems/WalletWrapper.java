@@ -126,8 +126,8 @@ public class WalletWrapper {
                             if (unconfirmedTrxs.add(trxString)) {
                                 // if it wasn't there, add it in the set and in the DB
                                 TrxManager trxm = new TrxManager();
-                                //Cheat
-                                trxm.addUnconfirmedTrx(trxString, "0", "31");
+                                // The remote method will replace the blank IDs
+                                trxm.addUnconfirmedTrx(trxString, "", "");
                                 trxm.closeConnection();
                             }
                             // if it was there, nothing to do
@@ -135,7 +135,8 @@ public class WalletWrapper {
                             // if it isn't in the set, do nothing
                             // otherwise, delete it from the set and from the DB
                             if (unconfirmedTrxs.contains(trxString)) {
-                                writeOnFile(trxString, System.currentTimeMillis(), "slowtrxpart2-attempt"+N_ATTEMPT+".csv");
+                                writeOnFile(trxString, System.currentTimeMillis(),
+                                        "slowtrxpart2-attempt"+N_ATTEMPT+".csv");
                                 System.out.println("*** Transaction " + trxString
                                         + " confirmed! *********");
                                 TrxManager trxm = new TrxManager();

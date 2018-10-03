@@ -442,7 +442,7 @@ public class ClientGUI extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TEST 1: make 50 "slow" transactions
 
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 25; i++) {
             if (currentPrice != null) {
                 // TIMESTAMP
                 long before = System.currentTimeMillis();

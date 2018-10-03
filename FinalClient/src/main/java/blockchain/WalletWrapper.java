@@ -1,4 +1,4 @@
-/*
+    /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -37,7 +37,7 @@ public class WalletWrapper {
 
     public void createWallet() {
         BitcoinClient tc1
-                = new BitcoinClient(".", "final-app-wallet");
+                = new BitcoinClient(Setup.Setup.WALLET_PATH, Setup.Setup.WALLET_NAME);
         final Address address = new Address(tc1.getParams(), Setup.Setup.WATCHED_ADDR);
         tc1.getWallet().addWatchedAddress(address);
         System.out.println("Balance: " + tc1.getWallet().getBalance().toFriendlyString());

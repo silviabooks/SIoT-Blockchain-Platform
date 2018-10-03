@@ -16,4 +16,6 @@ public class Setup {
     public static final String WATCHED_ADDR = "mzuWBNJS2LF1eSAHqYbRRiBBfxzRVwEcoB";
     public static final String SIOT_CHARGE_ADDR = "mjvRjidP7u7bqBQA9CsZFUJxB1si9nqaAF";
     public static final int N_ATTEMPT = 7;
+    public static final String WALLET_PATH = "/home/silvia/tesi/wallets";
+    public static final String WALLET_NAME = "final-app-wallet";
 }

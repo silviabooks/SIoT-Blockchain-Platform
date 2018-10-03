@@ -6,6 +6,7 @@ FinalClient/FinalClientRMIRootInterface.class
 NetGraph/NetGraph.class
 Entities/Client.class
 Servers/GridsRS.class
+com/unict/iot/blockchain/TrxManager$1.class
 Systems/Configurator.class
 Servers/Server.class
 Statistics/StatisticsInterface.class
@@ -37,6 +38,7 @@ resourcesupdater/ThingSpeakUpdater.class
 festival/AggregatorParser.class
 thingspeak/PublicJSONResult$1.class
 festival/TestBedsContainer.class
+com/unict/iot/blockchain/TrxManager$2.class
 thingspeak/Feed.class
 festival/feed.class
 thingspeak/Channel.class

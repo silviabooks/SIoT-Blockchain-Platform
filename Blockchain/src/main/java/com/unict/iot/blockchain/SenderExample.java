@@ -13,7 +13,7 @@ import java.util.Scanner;
  */
 public class SenderExample {
     public static void main(String args[]) {
-        TransactionClient c = new TransactionClient("./wallets", "sender-wallet");
+        TransactionClient c = new TransactionClient("/home/silvia/Scrivania/porcod", "ciao");
         System.out.println("Hello! I'm the sender. My current address is: ");
         System.out.println(c.getWallet().currentReceiveAddress());
         System.out.println("My current balance (does not include unconfirmed "

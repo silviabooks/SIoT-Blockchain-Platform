@@ -26,7 +26,7 @@ import org.bitcoinj.wallet.Wallet;
  */
 public class WalletWrapper {
 
-    public static final int N_ATTEMPT = 6;
+    public static final int N_ATTEMPT = 7;
     private static SIoTBitcoinClient tc;
     public static HashSet<String> unconfirmedTrxs;
 
@@ -50,7 +50,7 @@ public class WalletWrapper {
      */
     public void createWallet() {
         final SIoTBitcoinClient tc1
-                = new SIoTBitcoinClient("/home/silvia/tesi/Blockchain/wallets", "sender-wallet");
+                = new SIoTBitcoinClient(Settings.Setup.WALLET_PATH, Settings.Setup.WALLET_NAME);
         System.out.println("Balance: " + tc1.getWallet().getBalance().toFriendlyString());
         final NetworkParameters netPars = tc1.getParams();
         // Add watched addresses

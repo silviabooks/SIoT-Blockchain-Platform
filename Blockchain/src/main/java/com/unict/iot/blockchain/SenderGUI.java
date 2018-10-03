@@ -17,7 +17,7 @@ public class SenderGUI extends javax.swing.JFrame {
      * Creates new form SenderGUI
      */
     public SenderGUI() {
-        sender = new TransactionClient("./wallets", "receiver-wallet");
+        sender = new TransactionClient("/home/silvia/Scrivania/porcod", "final-app-wallet");
         initComponents();
     }
 
